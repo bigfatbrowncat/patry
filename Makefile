@@ -2,13 +2,11 @@ all: out/pasimple out/pavorbis out/vorbisfile_example
 
 UNAME := $(shell uname)
 
-ifeq ($(UNAME), Darwin)
+ifeq ($(UNAME), Darwin)	# OS X
   PLATFORM_LIBS = osx
   PLATFORM_GENERAL_OPTIONS = -framework Carbon
   PLATFORM_MULTIMEDIA_OPTIONS = -framework CoreAudio -framework AudioToolbox -framework AudioUnit
-endif
-
-ifeq ($(OS),Windows_NT)
+else ifeq ($(OS), Windows_NT)	# Windows
   PLATFORM_LIBS = win32
   PLATFORM_GENERAL_OPTIONS = -static-libgcc
   PLATFORM_MULTIMEDIA_OPTIONS = -lwinmm

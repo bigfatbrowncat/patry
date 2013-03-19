@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -6,10 +8,6 @@
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
 
-#ifdef _WIN32
-#include <io.h>
-#include <fcntl.h>
-#endif
 
 #define SAMPLE_RATE		44100
 #define FRAMES_PER_BUFFER	64
@@ -18,11 +16,18 @@
 #define RIGHT	1
 #define VOLUME	0.9
 
-float buffer_left[8192];
-float buffer_right[8192];
+#define RESULT_NO_INPUT_FILE			1
+#define RESULT_INPUT_FILE_CANT_OPEN		2
+#define RESULT_INPUT_FILE_NOT_AN_OGG		3
+#define RESULT_INPUT_FILE_CANT_READ		4
+#define RESULT_INPUT_FILE_VERSION_INCORRECT	5
+#define RESULT_INPUT_FILE_BAD_HEADER		6
+#define RESULT_INPUT_FILE_MEMORY_FAULT		7
+
 int eovf;
 OggVorbis_File vf;
 int current_section;
+long playhead;
 
 /* This routine will be called by the PortAudio engine when audio is needed.
 ** It may called at interrupt level on some machines so don't do anything
@@ -35,129 +40,198 @@ static int patestCallback(const void*                     inputBuffer,
                           PaStreamCallbackFlags           statusFlags,
                           void*                           userData)
 {
-    float *out = (float*)outputBuffer;
-    unsigned int i;
-    (void) inputBuffer; /* Prevent unused argument warning. */
+	float *out = (float*)outputBuffer;
+	unsigned int i;
+	(void) inputBuffer; /* Prevent unused argument warning. */
 
-    float **buffer;
+	float **buffer;
 
-    
-    long ret = ov_read_float(&vf, &buffer, framesPerBuffer, &current_section);
-    
-    
-	if (ret == 0) {
-		/* EOF */
-		eovf=1;
-		*out++ = 0;	// left
-		*out++ = 0;	// right
-	} 
-	else if (ret < 0) 
+	long ret = 0;
+
+	if (!eovf)
 	{
-		/* error in the stream.  Not a problem, just reporting it in
-		 case we (the app) cares.  In this case, we don't. */
-		*out++ = 0;	// left
-		*out++ = 0;	// right
-	} 
-	else 
-	{
-		/* we don't bother dealing with sample rate changes, etc, but
-		 you'll have to */
-		 
-		//short* value = (short*)pcmout;
-		for( i=0; i<framesPerBuffer; i++ )
+		ret = ov_read_float(&vf, &buffer, framesPerBuffer, &current_section);
+	
+		if (ret == 0)
 		{
-			*out++ = buffer[LEFT][i] * VOLUME;
-			*out++ = buffer[RIGHT][i] * VOLUME;
-		// *out++ = data->sine[data->left_phase];  /* left */
-		// *out++ = data->sine[data->right_phase];  /* right */
-		}
-	}
+			// EOF
+			eovf = 1;
 
-    
-    return 0;
+			// Outputting silence
+			for(i = 0; i < framesPerBuffer; i++)
+			{
+				*out++ = 0;	// left
+				*out++ = 0;	// right
+			}
+		} 
+		else if (ret < 0) 
+		{
+			// error in the stream.  Not a problem, just reporting it in
+			// case we (the app) cares.  In this case, we don't. 
+			for(i = 0; i < framesPerBuffer; i++)
+			{
+				*out++ = 0;	// left
+				*out++ = 0;	// right
+			}
+		} 
+		else 
+		{
+			for(i = 0; i < framesPerBuffer; i++)
+			{
+				if (i < ret)
+				{
+					*out++ = buffer[LEFT][i] * VOLUME;
+					*out++ = buffer[RIGHT][i] * VOLUME;
+					playhead ++;
+				}
+				else
+				{
+					*out++ = 0;
+					*out++ = 0;
+				}
+			}
+		}
+	
+	}
+	else
+	{
+		// Outputting silence
+		for(i = 0; i < framesPerBuffer; i++)
+		{
+			*out++ = 0;	// left
+			*out++ = 0;	// right
+		}	
+	}
+	
+	return 0;
 }
 
 /*******************************************************************/
-int main()
+int main(int argc, char* argv[])
 {
-    // Vorbis
-  eovf=0;
+	// Opening the input file
+	if (argc != 2)
+	{
+		fprintf(stderr, "No input file.\n");
+		exit(RESULT_NO_INPUT_FILE);
+	}
+	
+	printf("Input file: %s\n", argv[1]);
+	FILE* input_file = fopen(argv[1], "rb");
+	
+	if (input_file == NULL)
+	{
+		fprintf(stderr, "Can't open the input file\n");
+		exit(RESULT_INPUT_FILE_CANT_OPEN);
+	}
+	
+	// Opening vorbis file
+	eovf=0;
 
-#ifdef _WIN32
-  _setmode( _fileno( stdin ), _O_BINARY );
-  _setmode( _fileno( stdout ), _O_BINARY );
-#endif
+	int res = ov_open_callbacks(input_file, &vf, NULL, 0, OV_CALLBACKS_NOCLOSE);
+	switch (res)
+	{
+	case OV_EREAD:
+		fprintf(stderr, "Can't read from the input file");
+		exit(RESULT_INPUT_FILE_CANT_READ);
+		break;
+	case OV_ENOTVORBIS:
+		fprintf(stderr, "Input file does not appear to be an Ogg bitstream");
+		exit(RESULT_INPUT_FILE_NOT_AN_OGG);
+		break;
+	case OV_EVERSION:
+		fprintf(stderr, "Input file is an Ogg bitstream, but its version is incompatible with the decoder");
+		exit(RESULT_INPUT_FILE_VERSION_INCORRECT);
+		break;
+	case OV_EBADHEADER:
+		fprintf(stderr, "Input file is an Ogg bitstream, but its header is corrupted");
+		exit(RESULT_INPUT_FILE_BAD_HEADER);
+		break;
+	case OV_EFAULT:
+		fprintf(stderr, "Input file couldn't be opened cause of a memory fault");
+		exit(RESULT_INPUT_FILE_MEMORY_FAULT);
+		break;
+	}
 
-  if(ov_open_callbacks(stdin, &vf, NULL, 0, OV_CALLBACKS_NOCLOSE) < 0) {
-      fprintf(stderr,"Input does not appear to be an Ogg bitstream.\n");
-      exit(1);
-  }
-
-  {
-    char **ptr=ov_comment(&vf,-1)->user_comments;
-    vorbis_info *vi=ov_info(&vf,-1);
-    while(*ptr){
-      fprintf(stderr,"%s\n",*ptr);
-      ++ptr;
-    }
-    fprintf(stderr,"\nBitstream is %d channel, %ldHz\n",vi->channels,vi->rate);
-    fprintf(stderr,"Encoded by: %s\n\n",ov_comment(&vf,-1)->vendor);
-  }
+	// Reading the comments
+	char **ptr = ov_comment(&vf,-1)->user_comments;
+	vorbis_info *vi = ov_info(&vf,-1);
+	while(*ptr)
+	{
+		printf("%s\n",*ptr);
+		++ptr;
+	}
+	printf("\nBitstream is %d channel, %ldHz\n",vi->channels,vi->rate);
+	printf("Encoded by: %s\n\n",ov_comment(&vf,-1)->vendor);
   
-  
+	// Initializing PortAudio
+	PaStreamParameters outputParameters;
+	PaStream *stream;
+	PaError err;
+	int i;
 
-    // PulseAudio
-    PaStreamParameters outputParameters;
-    PaStream *stream;
-    PaError err;
-    int i;
-    printf("PortAudio Test: output sine wave.\n");
+	err = Pa_Initialize();
+	if (err != paNoError) goto error;
 
-    /* initialise sinusoidal wavetable */
+	outputParameters.device = Pa_GetDefaultOutputDevice(); /* default output device */
+	if (outputParameters.device == paNoDevice)
+	{
+		fprintf(stderr,"No default output device.\n");
+		goto error;
+	}
+	
+	outputParameters.channelCount = 2;                     /* stereo output */
+	outputParameters.sampleFormat = paFloat32;             /* 32 bit floating point output */
+	outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultLowOutputLatency;
+	outputParameters.hostApiSpecificStreamInfo = NULL;
 
-    err = Pa_Initialize();
-    if( err != paNoError ) goto error;
+	err = Pa_OpenStream( &stream,
+			 NULL,              /* No input. */
+			 &outputParameters, /* As above. */
+			 SAMPLE_RATE,
+			 FRAMES_PER_BUFFER,               /* Frames per buffer. */
+			 paClipOff,         /* No out of range samples expected. */
+			 patestCallback,
+			 NULL );
+	
+	if(err != paNoError) goto error;
 
-    outputParameters.device = Pa_GetDefaultOutputDevice(); /* default output device */
-    if (outputParameters.device == paNoDevice) {
-      fprintf(stderr,"Error: No default output device.\n");
-      goto error;
-    }
-    outputParameters.channelCount = 2;                     /* stereo output */
-    outputParameters.sampleFormat = paFloat32;             /* 32 bit floating point output */
-    outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultLowOutputLatency;
-    outputParameters.hostApiSpecificStreamInfo = NULL;
+	err = Pa_StartStream(stream);
+	if( err != paNoError ) goto error;
 
-    err = Pa_OpenStream( &stream,
-                         NULL,              /* No input. */
-                         &outputParameters, /* As above. */
-                         SAMPLE_RATE,
-                         FRAMES_PER_BUFFER,               /* Frames per buffer. */
-                         paClipOff,         /* No out of range samples expected. */
-                         patestCallback,
-                         NULL );
-    if( err != paNoError ) goto error;
+	long length = ov_pcm_total(&vf, -1);
+	int lmin = length / SAMPLE_RATE / 60;
+	int lsec = length / SAMPLE_RATE % 60;
+	int lsp10 = length / (SAMPLE_RATE / 10) % 10;
 
-    err = Pa_StartStream( stream );
-    if( err != paNoError ) goto error;
+	printf("\n");
 
-    printf("Playing...\n");
-    //Sleep(ov_time_total(&vf, -1) * 1000);	// As much as needed
-	Sleep(2000);
-    
-    err = Pa_CloseStream( stream );
-    if( err != paNoError ) goto error;
-    Pa_Terminate();
+	playhead = 0;
+	while (!eovf)
+	{
+		usleep(1000);
+		int min = playhead / SAMPLE_RATE / 60;
+		int sec = playhead / SAMPLE_RATE % 60;
+		int sp10 = playhead / (SAMPLE_RATE / 10) % 10;
+		printf("Playing the file.... [ %02d:%02d.%d / %02d:%02d.%d ]\r", min, sec, sp10, lmin, lsec, lsp10);
+	}
+	printf("                                                                  \r");
+	printf("The sound file has ended.\n");
 
-    ov_clear(&vf);
-    
-    printf("Test finished.\n");
-    return err;
+	err = Pa_CloseStream( stream );
+	if( err != paNoError ) goto error;
+	Pa_Terminate();
+
+	printf("Bye.\n");
+	return err;
 
 error:
-    Pa_Terminate();
-    fprintf( stderr, "An error occured while using the portaudio stream\n" );
-    fprintf( stderr, "Error number: %d\n", err );
-    fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) );
-    return err;
+	Pa_Terminate();
+	ov_clear(&vf);
+	if (input_file != NULL) fclose(input_file);
+
+	printf("An error occured while using the portaudio stream\n" );
+	printf("Error number: %d\n", err );
+	printf("Error message: %s\n", Pa_GetErrorText( err ) );
+	return err;
 }
