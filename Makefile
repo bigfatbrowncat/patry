@@ -8,7 +8,7 @@ ifeq ($(UNAME), Darwin)	# OS X
   PLATFORM_MULTIMEDIA_OPTIONS = -framework CoreAudio -framework AudioToolbox -framework AudioUnit
 else ifeq ($(OS), Windows_NT)	# Windows
   PLATFORM_LIBS = win32
-  PLATFORM_GENERAL_OPTIONS = -lstdc++ -static-libstdc++ -static-libgcc
+  PLATFORM_GENERAL_OPTIONS = -static-libstdc++ -static-libgcc
   PLATFORM_MULTIMEDIA_OPTIONS = -lwinmm
 endif
 
@@ -18,7 +18,7 @@ out/pasimple: src/pasimple.c
 
 out/pavorbis: src/pavorbis.cpp
 	mkdir -p out
-	gcc -Llib/$(PLATFORM_LIBS) -Iinclude src/pavorbis.cpp -lvorbisfile -lvorbis -logg -lportaudio $(PLATFORM_MULTIMEDIA_OPTIONS) $(PLATFORM_GENERAL_OPTIONS) -o out/pavorbis
+	gcc -Llib/$(PLATFORM_LIBS) -Iinclude src/pavorbis.cpp -lvorbisfile -lvorbis -logg -lportaudio $(PLATFORM_MULTIMEDIA_OPTIONS) -lstdc++ $(PLATFORM_GENERAL_OPTIONS) -o out/pavorbis
 
 out/vorbisfile_example: src/vorbisfile_example.c
 	mkdir -p out
