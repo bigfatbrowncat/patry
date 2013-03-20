@@ -1,6 +1,8 @@
-all: out/pasimple out/pavorbis out/vorbisfile_example
-
 UNAME := $(shell uname)
+
+BIN = bin
+OBJ = obj
+SRC = src
 
 ifeq ($(UNAME), Darwin)	# OS X
   PLATFORM_LIBS = osx
@@ -8,23 +10,33 @@ ifeq ($(UNAME), Darwin)	# OS X
   PLATFORM_MULTIMEDIA_OPTIONS = -framework CoreAudio -framework AudioToolbox -framework AudioUnit
 else ifeq ($(OS), Windows_NT)	# Windows
   PLATFORM_LIBS = win32
-  PLATFORM_GENERAL_OPTIONS = -static-libstdc++ -static-libgcc
+  PLATFORM_GENERAL_OPTIONS = -lmingw32 -mwindows -mconsole -static-libgcc -static-libstdc++
   PLATFORM_MULTIMEDIA_OPTIONS = -lwinmm
 endif
 
-out/pasimple: src/pasimple.c
-	mkdir -p out
-	gcc -Llib/$(PLATFORM_LIBS) -Iinclude src/pasimple.c -lportaudio $(PLATFORM_MULTIMEDIA_OPTIONS) $(PLATFORM_GENERAL_OPTIONS) -o out/pasimple
+all: $(BIN)/pasimple $(BIN)/pavorbis $(BIN)/vorbisfile_example
 
-out/pavorbis: src/pavorbis.cpp
-	mkdir -p out
-	gcc -Llib/$(PLATFORM_LIBS) -Iinclude src/pavorbis.cpp -lvorbisfile -lvorbis -logg -lportaudio $(PLATFORM_MULTIMEDIA_OPTIONS) -lstdc++ $(PLATFORM_GENERAL_OPTIONS) -o out/pavorbis
+$(BIN)/pasimple: $(SRC)/pasimple.c
+	mkdir -p $(BIN)
+	gcc -Llib/$(PLATFORM_LIBS) -Iinclude $(SRC)/pasimple.c -lportaudio $(PLATFORM_MULTIMEDIA_OPTIONS) $(PLATFORM_GENERAL_OPTIONS) -o $(BIN)/pasimple
 
-out/vorbisfile_example: src/vorbisfile_example.c
-	mkdir -p out
-	gcc -Llib/$(PLATFORM_LIBS) -Iinclude src/vorbisfile_example.c -lvorbisfile -lvorbis -logg $(PLATFORM_GENERAL_OPTIONS) -o out/vorbisfile_example
+$(BIN)/vorbisfile_example: $(SRC)/vorbisfile_example.c
+	mkdir -p $(BIN)
+	gcc -Llib/$(PLATFORM_LIBS) -Iinclude $(SRC)/vorbisfile_example.c -lvorbisfile -lvorbis -logg $(PLATFORM_GENERAL_OPTIONS) -o $(BIN)/vorbisfile_example
+
+# PAVorbis targets
+
+$(OBJ)/%.o: $(SRC)/%.cpp $(SRC)/*.h
+	mkdir -p $(OBJ)
+	g++ -g -O0 -c -Iinclude $< -o $@
+
+$(BIN)/pavorbis: $(OBJ)/VorbisFileReader.o $(OBJ)/PortAudioClass.o $(OBJ)/PortAudioPlayer.o $(OBJ)/pavorbis.o 
+	mkdir -p $(BIN)
+	g++ -Iinclude -Llib/$(PLATFORM_LIBS) $^ -lvorbisfile -lvorbis -logg -lportaudio $(PLATFORM_MULTIMEDIA_OPTIONS) $(PLATFORM_GENERAL_OPTIONS) -o $@
+
 
 clean:
-	rm -rf out
+	rm -rf obj
+	rm -rf bin
 
 .PHONY: all
