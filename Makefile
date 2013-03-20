@@ -11,6 +11,8 @@ ifeq ($(UNAME), Darwin)	# OS X
   PLATFORM_CONSOLE_OPTION = 
   PLATFORM_UI_TARGET = osxui
 else ifeq ($(OS), Windows_NT)	# Windows
+  PLATFORM = windows
+  ARCH = i386
   PLATFORM_LIBS = win32
   PLATFORM_GENERAL_LINKER_OPTIONS = -lmingw32 -mwindows -static-libgcc -static-libstdc++
   PLATFORM_MULTIMEDIA_LINKER_OPTIONS = -lwinmm
@@ -18,7 +20,17 @@ else ifeq ($(OS), Windows_NT)	# Windows
   PLATFORM_UI_TARGET = win32ui
 endif
 
-all: $(BIN)/pasimple $(BIN)/pavorbis $(BIN)/vorbisfile_example $(BIN)/$(PLATFORM_UI_TARGET)
+all: $(BIN)/pasimple $(BIN)/pavorbis $(BIN)/vorbisfile_example $(BIN)/avian-embed $(BIN)/$(PLATFORM_UI_TARGET)
+
+$(BIN)/%.class: $(SRC)/%.java
+	"$(JAVA_HOME)/bin/javac" -d $(BIN) $<
+
+$(BIN)/avian-embed: $(SRC)/avian-embed.cpp $(BIN)/app/Application.class
+	mkdir -p $(BIN);
+	cp lib/java/classpath.jar $(BIN)/boot.jar;
+	(cd $(BIN);	"$(JAVA_HOME)/bin/jar" u0f boot.jar app/Application.class; cd ..;)
+	tools/$(PLATFORM_LIBS)/binaryToObject $(BIN)/boot.jar $(OBJ)/boot.jar.o _binary_boot_jar_start _binary_boot_jar_end $(PLATFORM) $(ARCH);
+	g++ -g -O0 -D_JNI_IMPLEMENTATION_ -Llib/$(PLATFORM_LIBS) -Iinclude $(OBJ)/boot.jar.o $< $(PLATFORM_GENERAL_LINKER_OPTIONS) -lavian -lz -lm -o $@
 
 $(BIN)/win32ui: $(SRC)/win32ui.c
 	mkdir -p $(BIN)
