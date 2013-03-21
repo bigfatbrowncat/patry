@@ -96,10 +96,10 @@ namespace vam
 	}
 
 
-	VorbisFileReader::VorbisFileReader(string file_name, int buffer_size_request) :
+	VorbisFileReader::VorbisFileReader(wstring file_name, int buffer_size_request) :
 		buffer_size_request(buffer_size_request)
 	{
-		file = fopen(file_name.c_str(), "rb");
+		file = _wfopen(file_name.c_str(), L"rb");
 
 		if (file == NULL)
 		{

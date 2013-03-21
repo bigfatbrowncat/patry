@@ -32,7 +32,16 @@ $(GEN)/jni/%.h: $(BIN)/java/%.class
 	"$(JAVA_HOME)/bin/javah" -classpath "$(BIN)/java" -o $@ $(subst /,.,$(basename $(patsubst $(GEN)/jni/%, %, $@)))
 
 
-$(BIN)/avian-embed: $(SRC)/avian-embed.cpp $(BIN)/java/app/Application.class $(GEN)/jni/app/Application.h
+JAVA_CLASSES = $(BIN)/java/app/Application.class $(BIN)/java/vam/VorbisFileReader.class
+JNI_HEADERS = $(GEN)/jni/app/Application.h  $(GEN)/jni/vam/VorbisFileReader.h
+JNI_OBJECTS = $(OBJ)/VorbisFileReader_jni.o
+NATIVE_OBJECTS = $(OBJ)/VorbisFileReader.o $(OBJ)/PortAudioClass.o $(OBJ)/PortAudioPlayer.o
+
+$(OBJ)/%.o: $(SRC)/%.cpp $(SRC)/*.h
+	mkdir -p $(OBJ)
+	g++ -g -O0 -c -Iinclude -I$(GEN)/jni/ $< -o $@
+
+$(BIN)/avian-embed: $(SRC)/avian-embed.cpp $(JAVA_CLASSES) $(JNI_HEADERS) $(JNI_OBJECTS) $(NATIVE_OBJECTS)
 	mkdir -p $(BIN);
 
 	# Extracting libavian objects
@@ -52,7 +61,7 @@ $(BIN)/avian-embed: $(SRC)/avian-embed.cpp $(BIN)/java/app/Application.class $(G
 	
 	# Making an object file from the java class library
 	tools/$(PLATFORM_LIBS)/binaryToObject $(BIN)/boot.jar $(OBJ)/boot.jar.o _binary_boot_jar_start _binary_boot_jar_end $(PLATFORM) $(ARCH); \
-	g++ -g -O0 -D_JNI_IMPLEMENTATION_ -Llib/$(PLATFORM_LIBS) -Iinclude -I$(GEN)/jni $(OBJ)/boot.jar.o $(OBJ)/libavian/*.o $< $(PLATFORM_GENERAL_LINKER_OPTIONS) -lmingwthrd -lm -lz -lws2_32 -o $@
+	g++ -g -O0 -D_JNI_IMPLEMENTATION_ -Llib/$(PLATFORM_LIBS) -Iinclude -I$(GEN)/jni/ $(OBJ)/boot.jar.o $(OBJ)/libavian/*.o $(JNI_OBJECTS) $(NATIVE_OBJECTS) $< -lvorbisfile -lvorbis -logg -lportaudio $(PLATFORM_MULTIMEDIA_LINKER_OPTIONS) $(PLATFORM_GENERAL_LINKER_OPTIONS) -lmingwthrd -lm -lz -lws2_32 -o $@
 
 $(BIN)/win32ui: $(SRC)/win32ui.c
 	mkdir -p $(BIN)
@@ -61,23 +70,6 @@ $(BIN)/win32ui: $(SRC)/win32ui.c
 $(BIN)/osxui:
 	#todo...
 
-$(BIN)/pasimple: $(SRC)/pasimple.c
-	mkdir -p $(BIN)
-	gcc -Llib/$(PLATFORM_LIBS) -Iinclude $(SRC)/pasimple.c -lportaudio $(PLATFORM_MULTIMEDIA_LINKER_OPTIONS) $(PLATFORM_GENERAL_LINKER_OPTIONS) $(PLATFORM_CONSOLE_OPTION) -o $(BIN)/pasimple
-
-$(BIN)/vorbisfile_example: $(SRC)/vorbisfile_example.c
-	mkdir -p $(BIN)
-	gcc -Llib/$(PLATFORM_LIBS) -Iinclude $(SRC)/vorbisfile_example.c -lvorbisfile -lvorbis -logg $(PLATFORM_GENERAL_LINKER_OPTIONS) $(PLATFORM_CONSOLE_OPTION) -o $(BIN)/vorbisfile_example
-
-# PAVorbis targets
-
-$(OBJ)/%.o: $(SRC)/%.cpp $(SRC)/*.h
-	mkdir -p $(OBJ)
-	g++ -g -O0 -c -Iinclude $< -o $@
-
-$(BIN)/pavorbis: $(OBJ)/VorbisFileReader.o $(OBJ)/PortAudioClass.o $(OBJ)/PortAudioPlayer.o $(OBJ)/pavorbis.o 
-	mkdir -p $(BIN)
-	g++ -Iinclude -Llib/$(PLATFORM_LIBS) $^ -lvorbisfile -lvorbis -logg -lportaudio $(PLATFORM_MULTIMEDIA_LINKER_OPTIONS) $(PLATFORM_GENERAL_LINKER_OPTIONS) $(PLATFORM_CONSOLE_OPTION) -o $@
 
 
 clean:

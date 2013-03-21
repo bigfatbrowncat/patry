@@ -23,8 +23,18 @@ namespace vam
 	public:
 		enum ErrorType
 		{
-			etCantOpen, etNotAnOgg, etCantRead, etVersionIncorrect, etBadHeader, etMemoryFault,
-			etHole, etBadLink, etInvalidArgument, etStrangeError, etCantSeek, etSeekOutOfRange
+			etCantOpen = 0,
+			etNotAnOgg = 1,
+			etCantRead = 2,
+			etVersionIncorrect = 3,
+			etBadHeader = 4,
+			etMemoryFault = 5,
+			etHole = 6,
+			etBadLink = 7,
+			etInvalidArgument = 8,
+			etStrangeError = 9,
+			etCantSeek = 10,
+			etSeekOutOfRange = 11
 		};
 
 		class Error
@@ -34,6 +44,7 @@ namespace vam
 			ErrorType type;
 			int code;
 			string caller;
+		protected:
 			Error(ErrorType type, int code, string caller) : type(type), code(code), caller(caller)
 			{
 			}
@@ -45,7 +56,9 @@ namespace vam
 
 		enum State
 		{
-			sReady, sEndOfData, sError
+			sReady = 0,
+			sEndOfData = 1,
+			sError = 2
 		};
 	private:
 		OggVorbis_File vf;
@@ -80,7 +93,7 @@ namespace vam
 		void updatePlayhead();
 
 	public:
-		VorbisFileReader(string file_name, int buffer_size_request);
+		VorbisFileReader(wstring file_name, int buffer_size_request);
 		virtual ~VorbisFileReader();
 
 		const float* readSample();
