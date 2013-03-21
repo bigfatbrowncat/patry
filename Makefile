@@ -22,15 +22,31 @@ endif
 
 all: $(BIN)/pasimple $(BIN)/pavorbis $(BIN)/vorbisfile_example $(BIN)/avian-embed $(BIN)/$(PLATFORM_UI_TARGET)
 
-$(BIN)/%.class: $(SRC)/%.java
-	"$(JAVA_HOME)/bin/javac" -d $(BIN) $<
+$(BIN)/java/%.class: $(SRC)/%.java
+	mkdir -p $(BIN)/java
+	"$(JAVA_HOME)/bin/javac" -d $(BIN)/java $<
 
-$(BIN)/avian-embed: $(SRC)/avian-embed.cpp $(BIN)/app/Application.class
+$(BIN)/avian-embed: $(SRC)/avian-embed.cpp $(BIN)/java/app/Application.class
 	mkdir -p $(BIN);
-	cp lib/java/classpath.jar $(BIN)/boot.jar;
-	(cd $(BIN);	"$(JAVA_HOME)/bin/jar" u0f boot.jar app/Application.class; cd ..;)
-	tools/$(PLATFORM_LIBS)/binaryToObject $(BIN)/boot.jar $(OBJ)/boot.jar.o _binary_boot_jar_start _binary_boot_jar_end $(PLATFORM) $(ARCH);
-	g++ -g -O0 -D_JNI_IMPLEMENTATION_ -Llib/$(PLATFORM_LIBS) -Iinclude $(OBJ)/boot.jar.o $< $(PLATFORM_GENERAL_LINKER_OPTIONS) -lavian -lz -lm -o $@
+
+	# Extracting libavian objects
+	( \
+	    cd $(OBJ); \
+	    mkdir -p libavian; \
+	    cd libavian; \
+	    ar x ../../lib/$(PLATFORM_LIBS)/libavian.a; \
+	)
+	
+	# Making the java class library
+	cp lib/java/classpath.jar $(BIN)/boot.jar; \
+	( \
+	    cd $(BIN); \
+	    "$(JAVA_HOME)/bin/jar" u0f boot.jar -C java .; \
+	)
+	
+	# Making an object file from the java class library
+	tools/$(PLATFORM_LIBS)/binaryToObject $(BIN)/boot.jar $(OBJ)/boot.jar.o _binary_boot_jar_start _binary_boot_jar_end $(PLATFORM) $(ARCH); \
+	g++ -g -O0 -D_JNI_IMPLEMENTATION_ -Llib/$(PLATFORM_LIBS) -Iinclude $(OBJ)/boot.jar.o $(OBJ)/libavian/*.o $< $(PLATFORM_GENERAL_LINKER_OPTIONS) -lmingwthrd -lm -lz -lws2_32 -o $@
 
 $(BIN)/win32ui: $(SRC)/win32ui.c
 	mkdir -p $(BIN)
