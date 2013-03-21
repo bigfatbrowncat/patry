@@ -2,8 +2,10 @@
 #include <windows.h>
 #include <locale.h>
 
-#include "avian/jni.h"
+#include <jni.h>
 
+// Local JNI headers
+#include "app/Application.h"
 
 #if (defined __MINGW32__) || (defined _MSC_VER)
 #  define EXPORT __declspec(dllexport)
@@ -33,12 +35,23 @@ extern "C"
 
 } // extern "C"
 
+extern "C"
+{
+
+	JNIEXPORT jint JNICALL Java_app_Application_callNative(JNIEnv *, jclass, jint value)
+	{
+		printf("callNative called. Value is %d", value);
+		return value * 2;
+	}
+
+}
+
 int main(int argc, const char** argv)
 {
 	// Getting command line as a wide string
 	int wac = 0;
 	wchar_t** wav;
-	wav = CommandLineToArgvW (GetCommandLineW(), &wac);
+	wav = CommandLineToArgvW(GetCommandLineW(), &wac);
 
 	JavaVMInitArgs vmArgs;
 	vmArgs.version = JNI_VERSION_1_2;
@@ -69,7 +82,11 @@ int main(int argc, const char** argv)
 				{
 					for (int i = 1; i < wac; ++i)
 					{
-						e->SetObjectArrayElement(a, i - 1, e->NewString((jchar*)(wav[i]), wcslen(wav[i])));
+						e->SetObjectArrayElement(
+						        a,
+						        i - 1,
+						        e->NewString((jchar*) (wav[i]),
+						                wcslen(wav[i])));
 					}
 
 					e->CallStaticVoidMethod(c, m, a);
@@ -79,7 +96,8 @@ int main(int argc, const char** argv)
 	}
 
 	int exitCode = 0;
-	if (e->ExceptionCheck()) {
+	if (e->ExceptionCheck())
+	{
 		exitCode = -1;
 		e->ExceptionDescribe();
 	}

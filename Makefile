@@ -1,8 +1,9 @@
 UNAME := $(shell uname)
 
+SRC = src
 BIN = bin
 OBJ = obj
-SRC = src
+GEN = gen
 
 ifeq ($(UNAME), Darwin)	# OS X
   PLATFORM_LIBS = osx
@@ -26,7 +27,12 @@ $(BIN)/java/%.class: $(SRC)/java/%.java
 	mkdir -p $(BIN)/java
 	"$(JAVA_HOME)/bin/javac" -d $(BIN)/java $<
 
-$(BIN)/avian-embed: $(SRC)/avian-embed.cpp $(BIN)/java/app/Application.class
+$(GEN)/jni/%.h: $(BIN)/java/%.class
+	mkdir -p $(GEN)/jni
+	"$(JAVA_HOME)/bin/javah" -classpath "$(BIN)/java" -o $@ $(subst /,.,$(basename $(patsubst $(GEN)/jni/%, %, $@)))
+
+
+$(BIN)/avian-embed: $(SRC)/avian-embed.cpp $(BIN)/java/app/Application.class $(GEN)/jni/app/Application.h
 	mkdir -p $(BIN);
 
 	# Extracting libavian objects
@@ -46,7 +52,7 @@ $(BIN)/avian-embed: $(SRC)/avian-embed.cpp $(BIN)/java/app/Application.class
 	
 	# Making an object file from the java class library
 	tools/$(PLATFORM_LIBS)/binaryToObject $(BIN)/boot.jar $(OBJ)/boot.jar.o _binary_boot_jar_start _binary_boot_jar_end $(PLATFORM) $(ARCH); \
-	g++ -g -O0 -D_JNI_IMPLEMENTATION_ -Llib/$(PLATFORM_LIBS) -Iinclude $(OBJ)/boot.jar.o $(OBJ)/libavian/*.o $< $(PLATFORM_GENERAL_LINKER_OPTIONS) -lmingwthrd -lm -lz -lws2_32 -o $@
+	g++ -g -O0 -D_JNI_IMPLEMENTATION_ -Llib/$(PLATFORM_LIBS) -Iinclude -I$(GEN)/jni $(OBJ)/boot.jar.o $(OBJ)/libavian/*.o $< $(PLATFORM_GENERAL_LINKER_OPTIONS) -lmingwthrd -lm -lz -lws2_32 -o $@
 
 $(BIN)/win32ui: $(SRC)/win32ui.c
 	mkdir -p $(BIN)
@@ -75,7 +81,8 @@ $(BIN)/pavorbis: $(OBJ)/VorbisFileReader.o $(OBJ)/PortAudioClass.o $(OBJ)/PortAu
 
 
 clean:
-	rm -rf obj
-	rm -rf bin
+	rm -rf $(OBJ)
+	rm -rf $(GEN)
+	rm -rf $(BIN)
 
 .PHONY: all
