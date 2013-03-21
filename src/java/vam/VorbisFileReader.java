@@ -15,11 +15,35 @@ public class VorbisFileReader
 		etInvalidArgument(8),
 		etStrangeError(9),
 		etCantSeek(10),
-		etSeekOutOfRange(11);
+		etSeekOutOfRange(11),
 		
+		resourcesDeallocated(100);
+		
+		@SuppressWarnings("unused")	// used in native code
 		private int value;
+		
 		ErrorType(int value) { this.value = value; }
-		int getValue() { return value; }
+		static ErrorType fromValue(int i)
+		{
+			switch (i)
+			{
+			case 0: return etCantOpen;
+			case 1: return etNotAnOgg;
+			case 2: return etCantRead;
+			case 3: return etVersionIncorrect;
+			case 4: return etBadHeader;
+			case 5: return etMemoryFault;
+			case 6: return etHole;
+			case 7: return etBadLink;
+			case 8: return etInvalidArgument;
+			case 9: return etStrangeError;
+			case 10: return etCantSeek;
+			case 11: return etSeekOutOfRange;
+			case 100: return resourcesDeallocated;
+			default:
+				throw new RuntimeException("Strange value");
+			}
+		}
 	}
 	
 	public class Error extends Exception
@@ -30,6 +54,7 @@ public class VorbisFileReader
 		private String caller;
 		protected Error(ErrorType type, int code, String caller)
 		{
+			super("error type " + type.toString() + (code != 0 ? " (code is " + code + ")" : "") + ", caller is " + caller);
 			this.type = type;
 			this.code = code;
 			this.caller = caller;
@@ -45,9 +70,10 @@ public class VorbisFileReader
 		sEndOfData(1),
 		sError(2);
 
+		@SuppressWarnings("unused")	// used in native code
 		private int value;
+		
 		State(int value) { this.value = value; }
-		int getValue() { return value; }
 		static State fromValue(int i)
 		{
 			switch (i)
@@ -61,16 +87,40 @@ public class VorbisFileReader
 		}
 	}
 	
-	// Private fields and methods are implemented in C++ class
+	// *** All the private fields and methods are implemented in C++ class ***
+	
+	/**
+	 * The address of the native VorbisFileReader object in memory. Used in native code
+	 */
 	private long nativeInstance = 0;
-	private native void createNativeInstance(String file_name, int buffer_size_request);
+	/**
+	 * Calls constructor of the native object. Sets the <code>nativeInstance</code> value
+	 * @param file_name Vorbis file name to open
+	 * @param buffer_size_request Buffer size to request for reading
+	 * @throws Error In an exception case
+	 */
+	private native void createNativeInstance(String file_name, int buffer_size_request) throws Error;
+	
+	/**
+	 * Frees the native allocated object
+	 */
 	private native void destroyNativeInstance();
 	
-	public VorbisFileReader(String file_name, int buffer_size_request)
+	/**
+	 * Creates the new <code>VorbisFileReader</code> object, 
+	 * opens the selected file and prepares it to read Vorbis sound.
+	 * @param file_name Vorbis file name to open
+	 * @param buffer_size_request Buffer size to request for reading
+	 * @throws Error In an exception case
+	 */
+	public VorbisFileReader(String file_name, int buffer_size_request) throws Error
 	{
 		createNativeInstance(file_name, buffer_size_request);
 	}
 	
+	/**
+	 * Closes the file and releases all native resources.
+	 */
 	public void close()
 	{
 		if (nativeInstance != 0)
@@ -93,8 +143,8 @@ public class VorbisFileReader
 		}
 	}
 	
-	public native float[] readSample();
-	public native void rewind(double position);
+	public native float[] readSample() throws Error;
+	public native void rewind(double position) throws Error;
 	
 	public native State getState();
 	public native ErrorType getErrorType();

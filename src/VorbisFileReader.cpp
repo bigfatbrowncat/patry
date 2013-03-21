@@ -10,7 +10,7 @@
 namespace vam
 {
 
-	void VorbisFileReader::throwVorbisError(int code, string caller)
+	void VorbisFileReader::throwVorbisError(int code, wstring caller)
 	{
 		state = sError;
 
@@ -51,14 +51,14 @@ namespace vam
 		throw Error(errorType, code, caller);
 	}
 
-	void VorbisFileReader::throwStrangeError(int code, string caller)
+	void VorbisFileReader::throwStrangeError(int code, wstring caller)
 	{
 		state = sError;
 		errorType = etStrangeError;
 		throw Error(errorType, code, caller);
 	}
 
-	void VorbisFileReader::throwError(ErrorType type, string caller)
+	void VorbisFileReader::throwError(ErrorType type, wstring caller)
 	{
 		state = sError;
 		errorType = type;
@@ -70,13 +70,13 @@ namespace vam
 		buffer_start_time = ov_time_tell(&vf);
 		if (buffer_start_time < 0)
 		{
-			throwVorbisError((int)buffer_start_time, "fillBuffer (1)");
+			throwVorbisError((int)buffer_start_time, L"fillBuffer (1)");
 		}
 
 		int ret = ov_read_float(&vf, &buffer, buffer_size_request, &current_section);
 		if (ret < 0)
 		{
-			throwVorbisError(ret, "fillBuffer (2)");
+			throwVorbisError(ret, L"fillBuffer (2)");
 		}
 		else if (ret == 0)
 		{
@@ -103,7 +103,7 @@ namespace vam
 
 		if (file == NULL)
 		{
-			throwError(etCantOpen, "constructor (1)");
+			throwError(etCantOpen, L"constructor (1)");
 		}
 
 		// Opening vorbis file
@@ -111,7 +111,7 @@ namespace vam
 		int ret = ov_open_callbacks(file, &vf, NULL, 0, OV_CALLBACKS_NOCLOSE);
 		if (ret < 0)
 		{
-			throwVorbisError(ret, "constructor (2)");
+			throwVorbisError(ret, L"constructor (2)");
 		}
 
 
@@ -198,13 +198,13 @@ namespace vam
 	{
 		if (position > length || position < 0)
 		{
-			throwError(etSeekOutOfRange, "rewind (1)");
+			throwError(etSeekOutOfRange, L"rewind (1)");
 		}
 
 		int ret = ov_time_seek(&vf, position);
 		if (ret < 0)
 		{
-			throwVorbisError(ret, "rewind (2)");
+			throwVorbisError(ret, L"rewind (2)");
 		}
 
 		if (ret == 0)

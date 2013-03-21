@@ -35,17 +35,6 @@ extern "C"
 
 } // extern "C"
 
-extern "C"
-{
-
-	JNIEXPORT jint JNICALL Java_app_Application_callNative(JNIEnv *, jclass, jint value)
-	{
-		printf("callNative called. Value is %d", value);
-		return value * 2;
-	}
-
-}
-
 int main(int argc, const char** argv)
 {
 	// Getting command line as a wide string

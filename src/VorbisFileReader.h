@@ -43,15 +43,15 @@ namespace vam
 		private:
 			ErrorType type;
 			int code;
-			string caller;
+			wstring caller;
 		protected:
-			Error(ErrorType type, int code, string caller) : type(type), code(code), caller(caller)
+			Error(ErrorType type, int code, wstring caller) : type(type), code(code), caller(caller)
 			{
 			}
 		public:
 			ErrorType getType() const { return type; }
 			int getCode() const { return code; }
-			string getCaller() const { return caller; }
+			wstring getCaller() const { return caller; }
 		};
 
 		enum State
@@ -85,9 +85,9 @@ namespace vam
 		vector<string> comments;
 
 	private:
-		void throwVorbisError(int code, string caller);
-		void throwStrangeError(int code, string caller);
-		void throwError(ErrorType type, string caller);
+		void throwVorbisError(int code, wstring caller);
+		void throwStrangeError(int code, wstring caller);
+		void throwError(ErrorType type, wstring caller);
 
 		void fillBuffer();
 		void updatePlayhead();

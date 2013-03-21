@@ -21,7 +21,7 @@ else ifeq ($(OS), Windows_NT)	# Windows
   PLATFORM_UI_TARGET = win32ui
 endif
 
-all: $(BIN)/pasimple $(BIN)/pavorbis $(BIN)/vorbisfile_example $(BIN)/avian-embed $(BIN)/$(PLATFORM_UI_TARGET)
+all: $(BIN)/avian-embed $(BIN)/$(PLATFORM_UI_TARGET)
 
 $(BIN)/java/%.class: $(SRC)/java/%.java
 	mkdir -p $(BIN)/java
@@ -32,7 +32,7 @@ $(GEN)/jni/%.h: $(BIN)/java/%.class
 	"$(JAVA_HOME)/bin/javah" -classpath "$(BIN)/java" -o $@ $(subst /,.,$(basename $(patsubst $(GEN)/jni/%, %, $@)))
 
 
-JAVA_CLASSES = $(BIN)/java/app/Application.class $(BIN)/java/vam/VorbisFileReader.class
+JAVA_CLASSES = $(BIN)/java/app/Application.class $(BIN)/java/vam/VorbisFileReader.class $(BIN)/java/vam/ResourcesDeallocatedException.class
 JNI_HEADERS = $(GEN)/jni/app/Application.h  $(GEN)/jni/vam/VorbisFileReader.h
 JNI_OBJECTS = $(OBJ)/VorbisFileReader_jni.o
 NATIVE_OBJECTS = $(OBJ)/VorbisFileReader.o $(OBJ)/PortAudioClass.o $(OBJ)/PortAudioPlayer.o
