@@ -96,10 +96,19 @@ namespace vam
 	}
 
 
+#ifdef __MINGW32__
 	VorbisFileReader::VorbisFileReader(wstring file_name, int buffer_size_request) :
 		buffer_size_request(buffer_size_request)
+#else
+	VorbisFileReader::VorbisFileReader(string file_name, int buffer_size_request) :
+		buffer_size_request(buffer_size_request)
+#endif
 	{
-		file = _wfopen(file_name.c_str(), L"rb");
+#ifdef __MINGW32__
+	 	file = _wfopen(file_name.c_str(), L"rb");
+#else
+	 	file = fopen(file_name.c_str(), "rb");
+#endif
 
 		if (file == NULL)
 		{

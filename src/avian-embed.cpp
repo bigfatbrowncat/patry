@@ -1,6 +1,10 @@
 #include <stdint.h>
-#include <windows.h>
 #include <locale.h>
+#include <string.h>
+
+#ifdef __MINGW32__
+#include <windows.h>
+#endif
 
 #include <jni.h>
 
@@ -37,10 +41,15 @@ extern "C"
 
 int main(int argc, const char** argv)
 {
+#ifdef __MINGW32__
 	// Getting command line as a wide string
 	int wac = 0;
-	wchar_t** wav;
+	const wchar_t** wav;
 	wav = CommandLineToArgvW(GetCommandLineW(), &wac);
+#else
+	int wac = argc;
+	const char** wav = argv;
+#endif
 
 	JavaVMInitArgs vmArgs;
 	vmArgs.version = JNI_VERSION_1_2;
@@ -71,11 +80,14 @@ int main(int argc, const char** argv)
 				{
 					for (int i = 1; i < wac; ++i)
 					{
-						e->SetObjectArrayElement(
-						        a,
-						        i - 1,
-						        e->NewString((jchar*) (wav[i]),
-						                wcslen(wav[i])));
+#ifdef __MINGW32__
+						int arglen = wcslen(wav[i]));
+						jstring arg = e->NewString((jchar*) (wav[i]), arglen);
+#else
+						int arglen = strlen(wav[i]);
+						jstring arg = e->NewStringUTF((char*) (wav[i]));
+#endif
+						e->SetObjectArrayElement(a, i - 1, arg);
 					}
 
 					e->CallStaticVoidMethod(c, m, a);

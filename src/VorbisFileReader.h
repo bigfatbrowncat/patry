@@ -93,7 +93,11 @@ namespace vam
 		void updatePlayhead();
 
 	public:
+#ifdef __MINGW32__
 		VorbisFileReader(wstring file_name, int buffer_size_request);
+#else
+		VorbisFileReader(string file_name, int buffer_size_request);
+#endif
 		virtual ~VorbisFileReader();
 
 		const float* readSample();

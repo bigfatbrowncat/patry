@@ -28,7 +28,7 @@ void throwJavaVorbisFileReaderError(JNIEnv * env, jobject vorbisFileReader_objec
 			vorbisFileReaderError_class, "<init>", "(Lvam/VorbisFileReader;Lvam/VorbisFileReader$ErrorType;ILjava/lang/String;)V");
 
 	jobject errorType_object = errorType(env, err.getType());
-	jstring caller_string = env->NewString((const jchar*)err.getCaller().c_str(), err.getCaller().size());
+	jstring caller_string = env->NewString((const jchar*)err.getCaller().c_str(), err.getCaller().length() * sizeof(jchar));
 
 	jthrowable error_exception = (jthrowable)env->NewObject(vorbisFileReaderError_class, vorbisFileReaderError_constructor, vorbisFileReader_object, errorType_object, err.getCode(), caller_string);
 	env->Throw(error_exception);
@@ -46,20 +46,34 @@ extern "C"
 	JNIEXPORT void JNICALL Java_vam_VorbisFileReader_createNativeInstance(
 			JNIEnv * env, jobject vorbisFileReader_object, jstring file_name, jint buffer_size_request)
 	{
+#ifdef __MINGW32__
 		const wchar_t* fileName = (const wchar_t*)env->GetStringChars(file_name, NULL);
+#else
+		const char* fileName = (char*)env->GetStringUTFChars(file_name, NULL);
+#endif
 
 		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
 		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
 
 		try
 		{
+#ifdef __MINGW32__
 			VorbisFileReader* nativeInstance = new VorbisFileReader(wstring(fileName), buffer_size_request);
+#else
+			VorbisFileReader* nativeInstance = new VorbisFileReader(string(fileName), buffer_size_request);
+#endif
 			env->SetLongField(vorbisFileReader_object, nativeInstance_field, (long)nativeInstance);
 		}
 		catch (const VorbisFileReader::Error& err)
 		{
 			throwJavaVorbisFileReaderError(env, vorbisFileReader_object, err);
 		}
+
+#ifdef __MINGW32__
+		env->ReleaseStringChars(file_name, fileName);
+#else
+		env->ReleaseStringUTFChars(file_name, fileName);
+#endif
 	}
 
 	JNIEXPORT void JNICALL Java_vam_VorbisFileReader_destroyNativeInstance(JNIEnv * env, jobject vorbisFileReader_object)
