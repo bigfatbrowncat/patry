@@ -22,7 +22,7 @@ endif
 
 all: $(BIN)/pasimple $(BIN)/pavorbis $(BIN)/vorbisfile_example $(BIN)/avian-embed $(BIN)/$(PLATFORM_UI_TARGET)
 
-$(BIN)/java/%.class: $(SRC)/%.java
+$(BIN)/java/%.class: $(SRC)/java/%.java
 	mkdir -p $(BIN)/java
 	"$(JAVA_HOME)/bin/javac" -d $(BIN)/java $<
 
