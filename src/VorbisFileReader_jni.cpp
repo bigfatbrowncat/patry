@@ -212,12 +212,32 @@ extern "C"
 
 	JNIEXPORT jstring JNICALL Java_vam_VorbisFileReader_getVendor(JNIEnv * env, jobject vorbisFileReader_object)
 	{
-		// TODO Implement
+		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
+		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
+		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
+		if (nativeInstance == NULL) { throwResourcesDeallocated(env); return 0; }
+
+		string s = nativeInstance->getVendor();
+		jstring res = env->NewStringUTF(s.c_str());
+
+		return res;
 	}
 
 	JNIEXPORT jobjectArray JNICALL Java_vam_VorbisFileReader_getComments(JNIEnv * env, jobject vorbisFileReader_object)
 	{
-		// TODO Implement
+		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
+		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
+		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
+		if (nativeInstance == NULL) { throwResourcesDeallocated(env); return 0; }
+
+		vector<string> ss = nativeInstance->getComments();
+
+		jobjectArray res = env->NewObjectArray(ss.size(), env->FindClass("java/lang/String"), NULL);
+		for (int i = 0; i < ss.size(); i++)
+		{
+			env->SetObjectArrayElement(res, i, env->NewStringUTF(ss[i].c_str()));
+		}
+		return res;
 	}
 
 }

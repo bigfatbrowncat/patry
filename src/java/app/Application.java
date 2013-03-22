@@ -27,17 +27,25 @@ public class Application
 			}
 			
 			System.out.println("Input file: " + args[0]);
-			
+
 			VorbisFileReader vfr = new VorbisFileReader(args[0], 64);
 
-			System.out.println("\nBitstream has " + vfr.getChannels() + " channels, " + vfr.getRate() + "Hz, quality is " + (int)(Math.round((float)vfr.getBitsPerSecond() / 1000)) + "Kbps (on average)\n");
-			//System.out.println("Encoded by " + vfr.getVendor());
+			System.out.println("Encoded by " + vfr.getVendor());
+			System.out.println("\nBitstream has " + vfr.getChannels() + " channels, " + vfr.getRate() + "Hz, quality is " + (int)(Math.round((float)vfr.getBitsPerSecond() / 1000)) + "Kbps (on average)");
+
+			String[] comments = vfr.getComments(); 
+			if (comments.length > 0) System.out.println("\nComments:");
+			for (int i = 0; i < comments.length; i++)
+			{
+				System.out.println("  " + comments[i]);
+			}
 			
 			PortAudioPlayer pap = new PortAudioPlayer(vfr.getChannels(), vfr.getRate(), 64);
 
 			pap.setSoundSource(vfr);
 			pap.play();
 			
+			System.out.println();
 			while (vfr.getState() != VorbisFileReader.State.sEndOfData)
 			{
 				try
