@@ -76,7 +76,6 @@ namespace vam
 		int buffer_size_request;
 
 		State state;
-		ErrorType errorType;
 		double buffer_start_time;
 		double playhead;
 		double length;
@@ -106,7 +105,6 @@ namespace vam
 		void rewind(double position);
 
 		State getState() const { return state; }
-		ErrorType getErrorType() const { return errorType; }
 		double getPlayhead() const { return playhead; }
 		double getLength() const { return length; }
 		int getChannels() const { return channels; }

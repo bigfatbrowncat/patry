@@ -13,6 +13,7 @@ namespace vam
 	void VorbisFileReader::throwVorbisError(int code, wstring caller)
 	{
 		state = sError;
+		ErrorType errorType;
 
 		switch (code)
 		{
@@ -54,15 +55,13 @@ namespace vam
 	void VorbisFileReader::throwStrangeError(int code, wstring caller)
 	{
 		state = sError;
-		errorType = etStrangeError;
-		throw Error(errorType, code, caller);
+		throw Error(etStrangeError, code, caller);
 	}
 
 	void VorbisFileReader::throwError(ErrorType type, wstring caller)
 	{
 		state = sError;
-		errorType = type;
-		throw Error(errorType, 0, caller);
+		throw Error(type, 0, caller);
 	}
 
 	void VorbisFileReader::fillBuffer()

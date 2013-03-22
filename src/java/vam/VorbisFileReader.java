@@ -145,7 +145,6 @@ public class VorbisFileReader extends SoundSource
 	public native void rewind(double position) throws Error;
 	
 	public native State getState();
-	public native ErrorType getErrorType();
 	public native double getPlayhead();
 	public native double getLength();
 	public native int getChannels();

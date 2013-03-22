@@ -11,8 +11,10 @@ public class Application
 
 	private static String twoDig(int value)
 	{
-		if (value >= 10) return String.valueOf(value);
-		else return "0" + String.valueOf(value);
+		if (value >= 10) 
+			return String.valueOf(value);
+		else 
+			return "0" + String.valueOf(value);
 	}
 	
 	public static void main(String[] args)
@@ -72,6 +74,7 @@ public class Application
 			pap.close();
 			vfr.close();
 			
+			System.out.println("\nBye.");
 			System.exit(RESULT_SUCCESS);
 		} 
 		catch (VorbisFileReader.Error e)
