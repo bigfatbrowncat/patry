@@ -28,7 +28,21 @@ void throwJavaVorbisFileReaderError(JNIEnv * env, jobject vorbisFileReader_objec
 			vorbisFileReaderError_class, "<init>", "(Lvam/VorbisFileReader;Lvam/VorbisFileReader$ErrorType;ILjava/lang/String;)V");
 
 	jobject errorType_object = errorType(env, err.getType());
-	jstring caller_string = env->NewString((const jchar*)err.getCaller().c_str(), err.getCaller().length() * sizeof(jchar));
+
+#if __SIZEOF_WCHAR_T__ == 2
+	// (It's likely mingw32) Here we have equality between wchar_t and jchar
+	const jchar* caller_jchar = (const jchar*)err.getCaller().c_str();
+#else
+	// Converting wchar_t string to jchar string
+	jchar caller_jchar[err.getCaller().length()];
+	const wchar_t* caller_wchar = err.getCaller().c_str();
+	for (int i = 0; i < err.getCaller().length(); i++)
+	{
+		caller_jchar[i] = (jchar)caller_wchar[i];
+	}
+#endif
+
+	jstring caller_string = env->NewString(caller_jchar, err.getCaller().length()/* * sizeof(jchar)*/);	// TODO Resolve this strange behaviour
 
 	jthrowable error_exception = (jthrowable)env->NewObject(vorbisFileReaderError_class, vorbisFileReaderError_constructor, vorbisFileReader_object, errorType_object, err.getCode(), caller_string);
 	env->Throw(error_exception);
@@ -70,7 +84,7 @@ extern "C"
 		}
 
 #ifdef __MINGW32__
-		env->ReleaseStringChars(file_name, fileName);
+		env->ReleaseStringChars(file_name, (const jchar*)fileName);
 #else
 		env->ReleaseStringUTFChars(file_name, fileName);
 #endif

@@ -42,13 +42,14 @@ extern "C"
 int main(int argc, const char** argv)
 {
 #ifdef __MINGW32__
-	// Getting command line as a wide string
+	// For Windows: Getting command line as a wide string
 	int wac = 0;
-	const wchar_t** wav;
+	wchar_t** wav;
 	wav = CommandLineToArgvW(GetCommandLineW(), &wac);
 #else
+	// For other OS: Getting command line as a plain string (encoded in UTF8)
 	int wac = argc;
-	const char** wav = argv;
+	char** wav = argv;
 #endif
 
 	JavaVMInitArgs vmArgs;
@@ -81,9 +82,11 @@ int main(int argc, const char** argv)
 					for (int i = 1; i < wac; ++i)
 					{
 #ifdef __MINGW32__
-						int arglen = wcslen(wav[i]));
+						// For Windows: Sending wide string to Java
+						int arglen = wcslen(wav[i]);
 						jstring arg = e->NewString((jchar*) (wav[i]), arglen);
 #else
+						// For other OS: Sending UTF8-encoded string to Java
 						int arglen = strlen(wav[i]);
 						jstring arg = e->NewStringUTF((char*) (wav[i]));
 #endif
