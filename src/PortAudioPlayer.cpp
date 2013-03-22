@@ -6,13 +6,55 @@
  */
 
 #include <stddef.h>
+#include <unistd.h>
+
+#include <stdio.h>
 
 #include "PortAudioPlayer.h"
 
 namespace vam
 {
+	void PortAudioPlayer::checkError(PaError code)
+	{
+		if (code != paNoError)
+		{
+			state = sError;
+			throw Error(etPortAudioError, code);
+		}
+	}
 
-	PortAudioPlayer::PortAudioPlayer(int channels, int rate, int frames_per_buffer)
+	void PortAudioPlayer::throwError(ErrorType type)
+	{
+		throw Error(type, 0);
+	}
+
+	int PortAudioPlayer::portAudioCallback(const void*                     inputBuffer,
+	                                      void*                           outputBuffer,
+	                                      unsigned long                   framesPerBuffer,
+	                                      const PaStreamCallbackTimeInfo* timeInfo,
+	                                      PaStreamCallbackFlags           statusFlags,
+	                                      void*                           userData)
+	{
+		PortAudioPlayer* sender = (PortAudioPlayer*)userData;
+		sender->callbackInProgress = true;
+
+		(void) inputBuffer; // Prevent unused argument warning.
+		float *out = (float*)outputBuffer;
+
+		for (int i = 0; i < framesPerBuffer; i++)
+		{
+			const float *buffer = sender->soundSource->readSample();
+			for (int chan = 0; chan < sender->soundSource->getChannels(); chan++)
+			{
+				*out++ = buffer[chan] * VOLUME;
+			}
+		}
+		sender->callbackInProgress = false;
+		return 0;
+	}
+
+	PortAudioPlayer::PortAudioPlayer(int channels, int rate, int frames_per_buffer) :
+			callbackInProgress(false)
 	{
 		outputParameters.device = Pa_GetDefaultOutputDevice(); // default output device
 		if (outputParameters.device == paNoDevice)
@@ -45,6 +87,7 @@ namespace vam
 		}
 
 		checkError(Pa_StartStream(stream));
+
 		state = sPlaying;
 	}
 
@@ -63,5 +106,15 @@ namespace vam
 	{
 		Pa_CloseStream(stream);
 	}
+
+	void PortAudioPlayer::setSoundSource(SoundSource& value)
+	{
+		while (callbackInProgress)
+		{
+			usleep(1000);	// sleep for 1 msec
+		}
+		soundSource = &value;
+	}
+
 
 } /* namespace va */

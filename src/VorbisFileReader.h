@@ -13,12 +13,14 @@
 
 #include <vorbis/vorbisfile.h>
 
+#include "SoundSource.h"
+
 using namespace std;
 
 namespace vam
 {
 
-	class VorbisFileReader
+	class VorbisFileReader : public SoundSource
 	{
 	public:
 		enum ErrorType
@@ -100,15 +102,15 @@ namespace vam
 #endif
 		virtual ~VorbisFileReader();
 
-		const float* readSample();
+		virtual const float* readSample();
 		void rewind(double position);
 
 		State getState() const { return state; }
 		ErrorType getErrorType() const { return errorType; }
 		double getPlayhead() const { return playhead; }
 		double getLength() const { return length; }
-		long getChannels() const { return channels; }
-		long getRate() const { return rate; }
+		int getChannels() const { return channels; }
+		int getRate() const { return rate; }
 		int getBitsPerSecond() const { return bitsPerSecond; }
 		const string& getVendor() const { return vendor; }
 		const vector<string> getComments() const { return comments; }

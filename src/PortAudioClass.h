@@ -22,9 +22,9 @@ namespace vam
 			PaError code;
 		protected:
 			Error(PaError code) : code(code) {}
-			virtual ~Error() {}
 		public:
 			PaError getCode() const { return code; }
+			virtual ~Error() {}
 		};
 
 	private:

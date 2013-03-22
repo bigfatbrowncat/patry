@@ -8,9 +8,6 @@
 
 #include <jni.h>
 
-// Local JNI headers
-#include "app/Application.h"
-
 #if (defined __MINGW32__) || (defined _MSC_VER)
 #  define EXPORT __declspec(dllexport)
 #else

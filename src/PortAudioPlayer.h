@@ -8,39 +8,30 @@
 #ifndef PORTAUDIOWRITER_H_
 #define PORTAUDIOWRITER_H_
 
+#include "SoundSource.h"
+
 #include "PortAudioClass.h"
 
 namespace vam
 {
+	#define VOLUME				0.5
+
 	class PortAudioPlayer : public PortAudioClass
 	{
-		static int portAudioCallback(const void*                     inputBuffer,
-		                                      void*                           outputBuffer,
-		                                      unsigned long                   framesPerBuffer,
-		                                      const PaStreamCallbackTimeInfo* timeInfo,
-		                                      PaStreamCallbackFlags           statusFlags,
-		                                      void*                           userData)
-		{
-			(void) inputBuffer; // Prevent unused argument warning.
-			float *out = (float*)outputBuffer;
-			((PortAudioPlayer*)userData)->onNextBuffer(out, framesPerBuffer);
-
-		/*
-			for (int i = 0; i < framesPerBuffer; i++)
-			{
-				const float *buffer = pvfr->readSample();
-				for (int chan = 0; chan < pvfr->getChannels(); chan++)
-				{
-					*out++ = buffer[chan] * VOLUME;
-				}
-			}
-			*/
-			return 0;
-		}
 	public:
-		enum State { sStopped, sPlaying, sError };
+		enum State
+		{
+			sStopped	= 0,
+			sPlaying	= 1,
+			sError		= 2
+		};
 
-		enum ErrorType { etPortAudioError, etNoDevice, etInvalidOperationInThisState };
+		enum ErrorType
+		{
+			etPortAudioError				= 0,
+			etNoDevice						= 1,
+			etInvalidOperationInThisState	= 2
+		};
 
 		class Error : public PortAudioClass::Error
 		{
@@ -59,30 +50,29 @@ namespace vam
 	private:
 		PaStreamParameters outputParameters;
 		PaStream *stream;
+		SoundSource* soundSource;
 		State state;
+		volatile bool callbackInProgress;
 
-		virtual void checkError(PaError code)
-		{
-			if (code != paNoError)
-			{
-				state = sError;
-				throw Error(etPortAudioError, code);
-			}
-		}
+		virtual void checkError(PaError code);
+		static int portAudioCallback(const void*                     inputBuffer,
+		                                      void*                           outputBuffer,
+		                                      unsigned long                   framesPerBuffer,
+		                                      const PaStreamCallbackTimeInfo* timeInfo,
+		                                      PaStreamCallbackFlags           statusFlags,
+		                                      void*                           userData);
 
 	protected:
-		void throwError(ErrorType type)
-		{
-			throw Error(type, 0);
-		}
-
-		virtual void onNextBuffer(float* out, int framesPerBuffer) = 0;
+		void throwError(ErrorType type);
 
 	public:
 		PortAudioPlayer(int channels, int rate, int frames_per_buffer);
 		void play();
 		void stop();
 		virtual ~PortAudioPlayer();
+
+		void setSoundSource(SoundSource& value);
+		SoundSource& getSoundSource() const { return *soundSource; }
 	};
 
 } /* namespace va */

@@ -1,6 +1,6 @@
 package vam;
 
-public class VorbisFileReader
+public class VorbisFileReader extends SoundSource
 {
 	public enum ErrorType
 	{
@@ -46,7 +46,7 @@ public class VorbisFileReader
 		}
 	}
 	
-	public class Error extends Exception
+	public static class Error extends Exception
 	{
 		private static final long serialVersionUID = 334769002082148556L;
 		private ErrorType type;
@@ -89,17 +89,15 @@ public class VorbisFileReader
 	
 	// *** All the private fields and methods are implemented in C++ class ***
 	
-	/**
-	 * The address of the native VorbisFileReader object in memory. Used in native code
-	 */
-	private long nativeInstance = 0;
+
 	/**
 	 * Calls constructor of the native object. Sets the <code>nativeInstance</code> value
 	 * @param file_name Vorbis file name to open
 	 * @param buffer_size_request Buffer size to request for reading
+	 * @return address to the native object
 	 * @throws Error In an exception case
 	 */
-	private native void createNativeInstance(String file_name, int buffer_size_request) throws Error;
+	private native static long createNativeInstance(String file_name, int buffer_size_request) throws Error;
 	
 	/**
 	 * Frees the native allocated object
@@ -115,7 +113,7 @@ public class VorbisFileReader
 	 */
 	public VorbisFileReader(String file_name, int buffer_size_request) throws Error
 	{
-		createNativeInstance(file_name, buffer_size_request);
+		super(createNativeInstance(file_name, buffer_size_request));
 	}
 	
 	/**
@@ -150,8 +148,8 @@ public class VorbisFileReader
 	public native ErrorType getErrorType();
 	public native double getPlayhead();
 	public native double getLength();
-	public native long getChannels();
-	public native long getRate();
+	public native int getChannels();
+	public native int getRate();
 	public native int getBitsPerSecond();
 	public native String getVendor();
 	public native String[] getComments();

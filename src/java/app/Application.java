@@ -1,22 +1,75 @@
 package app;
 
+import vam.PortAudioPlayer;
 import vam.VorbisFileReader;
-import vam.VorbisFileReader.Error;
 
 public class Application
 {
+	public static final int RESULT_SUCCESS				= 0;
+	public static final int RESULT_NO_INPUT_FILE		= 1;
+	public static final int RESULT_VORBIS_ERROR			= 2;
+
+	private static String twoDig(int value)
+	{
+		if (value >= 10) return String.valueOf(value);
+		else return "0" + String.valueOf(value);
+	}
+	
 	public static void main(String[] args)
 	{
 		try
 		{
-			VorbisFileReader vfr = new VorbisFileReader("test/test_44100_1.ogg", 64);
-			float[] ff = vfr.readSample();
+			if (args.length == 0)
+			{
+				System.err.println("No input file");
+				System.exit(RESULT_NO_INPUT_FILE);
+				return;
+			}
+			
+			System.out.println("Input file: " + args[0]);
+			
+			VorbisFileReader vfr = new VorbisFileReader(args[0], 64);
+
+			System.out.println("\nBitstream has " + vfr.getChannels() + " channels, " + vfr.getRate() + "Hz, quality is " + (int)(Math.round((float)vfr.getBitsPerSecond() / 1000)) + "Kbps (on average)\n");
+			//System.out.println("Encoded by " + vfr.getVendor());
+			
+			PortAudioPlayer pap = new PortAudioPlayer(vfr.getChannels(), vfr.getRate(), 64);
+
+			pap.setSoundSource(vfr);
+			pap.play();
+			
+			while (vfr.getState() != VorbisFileReader.State.sEndOfData)
+			{
+				try
+				{
+					Thread.sleep(10);
+					
+					int min = (int)(vfr.getPlayhead()) / 60;
+					int sec = (int)(vfr.getPlayhead()) % 60;
+					int sp10 = (int)(vfr.getPlayhead() * 100) % 100;
+					
+					int lmin = (int)(vfr.getLength()) / 60;
+					int lsec = (int)(vfr.getLength()) % 60;
+					int lsp10 = (int)(vfr.getLength() * 100) % 100;
+					
+					System.out.print("Playing the file... [ " + twoDig(min) + ":" + twoDig(sec) + "." + twoDig(sp10) + " / " + twoDig(lmin) + ":" + twoDig(lsec) + "." + twoDig(lsp10) + " ]\r");
+					
+				} 
+				catch (InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+			}
+			
+			pap.close();
 			vfr.close();
+			
+			System.exit(RESULT_SUCCESS);
 		} 
-		catch (Error e)
+		catch (VorbisFileReader.Error e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(RESULT_VORBIS_ERROR);
 		}
 	}
 }

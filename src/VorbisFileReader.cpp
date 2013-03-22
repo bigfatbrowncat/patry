@@ -180,26 +180,15 @@ namespace vam
 
 				return read_buffer;
 			}
-			else
-			{
-				output_silence = true;
-			}
 
 		}
-		else
-		{
-			output_silence = true;
-		}
 
-		if (output_silence)
+		// If the reader isn't in the Ready state, returning zero
+		for (int i = 0; i < channels; i++)
 		{
-			// If the reader isn't in the Ready state, returning zero
-			for (int i = 0; i < channels; i++)
-			{
-				read_buffer[i] = 0.f;
-			}
-			return read_buffer;
+			read_buffer[i] = 0.f;
 		}
+		return read_buffer;
 
 	}
 
