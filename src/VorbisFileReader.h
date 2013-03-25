@@ -102,13 +102,13 @@ namespace vam
 		virtual ~VorbisFileReader();
 
 		virtual const float* readSample();
+		int getChannels() const { return channels; }
 		void rewind(double position);
-
-		State getState() const { return state; }
 		double getPlayhead() const { return playhead; }
 		double getLength() const { return length; }
-		int getChannels() const { return channels; }
 		int getRate() const { return rate; }
+
+		State getState() const { return state; }
 		int getBitsPerSecond() const { return bitsPerSecond; }
 		const string& getVendor() const { return vendor; }
 		const vector<string> getComments() const { return comments; }

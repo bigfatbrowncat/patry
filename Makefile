@@ -38,10 +38,17 @@ $(GEN)/jni/%.h: $(BIN)/java/%.class
 	"$(JAVA_HOME)/bin/javah" -classpath "$(BIN)/java" -o $@ $(subst /,.,$(basename $(patsubst $(GEN)/jni/%, %, $@)))
 
 
-JAVA_CLASSES = $(BIN)/java/app/Application.class $(BIN)/java/vam/VorbisFileReader.class $(BIN)/java/vam/ResourcesDeallocatedException.class
+JAVA_CLASSES = $(BIN)/java/app/Application.class \
+               $(BIN)/java/vam/VorbisFileReader.class \
+               $(BIN)/java/vam/ResourcesDeallocatedException.class \
+               $(BIN)/java/vam/SoundSource.class
+
 JNI_HEADERS = $(GEN)/jni/vam/VorbisFileReader.h $(GEN)/jni/vam/PortAudioPlayer.h
 JNI_OBJECTS = $(OBJ)/VorbisFileReader_jni.o $(OBJ)/PortAudioPlayer_jni.o
-NATIVE_OBJECTS = $(OBJ)/VorbisFileReader.o $(OBJ)/PortAudioClass.o $(OBJ)/PortAudioPlayer.o
+NATIVE_OBJECTS = $(OBJ)/VorbisFileReader.o \
+                 $(OBJ)/PortAudioClass.o \
+                 $(OBJ)/PortAudioPlayer.o \
+                 $(OBJ)/MixedSounds.o
 
 $(OBJ)/%.o: $(SRC)/%.cpp $(SRC)/*.h
 	mkdir -p $(OBJ)

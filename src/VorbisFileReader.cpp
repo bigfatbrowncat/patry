@@ -193,23 +193,33 @@ namespace vam
 
 	void VorbisFileReader::rewind(double position)
 	{
-		if (position > length || position < 0)
+		if (position < 0)
 		{
 			throwError(etSeekOutOfRange, L"rewind (1)");
+			state = sError;
 		}
 
-		int ret = ov_time_seek(&vf, position);
-		if (ret < 0)
+		if (position < length)
 		{
-			throwVorbisError(ret, L"rewind (2)");
-		}
+			int ret = ov_time_seek(&vf, position);
+			if (ret < 0)
+			{
+				throwVorbisError(ret, L"rewind (2)");
+			}
 
-		if (ret == 0)
+			if (ret == 0)
+			{
+				fillBuffer();
+			}
+			state = sReady;
+		}
+		else
 		{
-			fillBuffer();
+			playhead = position;
+			state = sEndOfData;
 		}
 		updatePlayhead();
 	}
 
 
-} /* namespace va */
+}

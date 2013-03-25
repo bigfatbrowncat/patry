@@ -46,7 +46,7 @@ public class VorbisFileReader extends SoundSource
 		}
 	}
 	
-	public static class Error extends Exception
+	public static class Error extends SoundSource.Error
 	{
 		private static final long serialVersionUID = 334769002082148556L;
 		private ErrorType type;
@@ -141,14 +141,20 @@ public class VorbisFileReader extends SoundSource
 		}
 	}
 	
+	@Override
 	public native float[] readSample() throws Error;
+	@Override
 	public native void rewind(double position) throws Error;
-	
-	public native State getState();
+	@Override
 	public native double getPlayhead();
+	@Override
 	public native double getLength();
+	@Override
 	public native int getChannels();
+	@Override
 	public native int getRate();
+
+	public native State getState();
 	public native int getBitsPerSecond();
 	public native String getVendor();
 	public native String[] getComments();

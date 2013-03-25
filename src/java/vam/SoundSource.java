@@ -1,11 +1,22 @@
 package vam;
 
-import vam.VorbisFileReader.Error;
-
 public abstract class SoundSource
 {
+	public static class Error extends Exception
+	{
+		private static final long serialVersionUID = 8833341961960069603L;
+
+		public Error(String message)
+		{
+			super(message);
+		}
+	}
+	
 	/**
-	 * The address of the native SoundSource object in memory. Used in native code
+	 * The address of the native SoundSource object in memory. 
+	 * This object should be constructed by the real descendant.
+	 * 
+	 * Used in native code
 	 */
 	protected long nativeInstance = 0;
 
@@ -16,4 +27,8 @@ public abstract class SoundSource
 	
 	public abstract float[] readSample() throws Error;
 	public abstract int getChannels();
+	public abstract void rewind(double position) throws Error;
+	public abstract double getPlayhead();
+	public abstract double getLength();
+	public abstract int getRate();
 }
