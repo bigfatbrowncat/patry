@@ -1,13 +1,11 @@
 package vam;
 
-import vam.VorbisFileReader.Error;
-import vam.VorbisFileReader.ErrorType;
-
 public class MixedSounds extends SoundSource
 {
 	public enum ErrorType
 	{
-		etUnsupportedChannelsNumber(0);
+		etUnsupportedChannelsNumber(0),
+		etInequalRate(1);
 		
 		@SuppressWarnings("unused")	// used in native code
 		private int value;
@@ -18,6 +16,7 @@ public class MixedSounds extends SoundSource
 			switch (i)
 			{
 			case 0: return etUnsupportedChannelsNumber;
+			case 1: return etInequalRate;
 			default:
 				throw new RuntimeException("Strange value");
 			}
@@ -46,8 +45,7 @@ public class MixedSounds extends SoundSource
 	 */
 	private native void destroyNativeInstance();
 	
-	
-	protected MixedSounds(long nativeInstance)
+	public MixedSounds()
 	{
 		super(createNativeInstance());
 	}
@@ -96,4 +94,6 @@ public class MixedSounds extends SoundSource
 	@Override
 	public native int getRate();
 
+	public native void addSound(SoundSource sound);
+	public native void removeSound(SoundSource sound);
 }

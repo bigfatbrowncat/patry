@@ -1,5 +1,6 @@
 package app;
 
+import vam.MixedSounds;
 import vam.PortAudioPlayer;
 import vam.VorbisFileReader;
 
@@ -31,6 +32,7 @@ public class Application
 			System.out.println("Input file: " + args[0]);
 
 			VorbisFileReader vfr = new VorbisFileReader(args[0], 64);
+			//VorbisFileReader vfr2 = new VorbisFileReader("/Users/il/Downloads/no-blues-live-v1.ogg", 64);
 
 			System.out.println("Encoded by " + vfr.getVendor());
 			System.out.println("\nBitstream has " + vfr.getChannels() + " channels, " + vfr.getRate() + "Hz, quality is " + (int)(Math.round((float)vfr.getBitsPerSecond() / 1000)) + "Kbps (on average)");
@@ -41,6 +43,10 @@ public class Application
 			{
 				System.out.println("  " + comments[i]);
 			}
+			
+			//MixedSounds ms = new MixedSounds();
+			//ms.addSound(vfr);
+			//ms.addSound(vfr2);
 			
 			PortAudioPlayer pap = new PortAudioPlayer(vfr.getChannels(), vfr.getRate(), 1024);
 
@@ -62,7 +68,7 @@ public class Application
 					int lsec = (int)(vfr.getLength()) % 60;
 					int lsp10 = (int)(vfr.getLength() * 100) % 100;
 					
-					System.out.print("Playing the file... [ " + twoDig(min) + ":" + twoDig(sec) + "." + twoDig(sp10) + " / " + twoDig(lmin) + ":" + twoDig(lsec) + "." + twoDig(lsp10) + " ]\r");
+					System.out.print("\rPlaying the file... [ " + twoDig(min) + ":" + twoDig(sec) + "." + twoDig(sp10) + " / " + twoDig(lmin) + ":" + twoDig(lsec) + "." + twoDig(lsp10) + " ]");
 					
 				} 
 				catch (InterruptedException e)

@@ -7,6 +7,7 @@
 
 // Local includes
 #include "VorbisFileReader.h"
+#include "JNITools.h"
 
 using namespace vam;
 using namespace std;
@@ -23,9 +24,9 @@ jobject errorType(JNIEnv * env, VorbisFileReader::ErrorType errorType)
 
 void throwJavaVorbisFileReaderError(JNIEnv * env, const VorbisFileReader::Error& err)
 {
-	jclass vorbisFileReaderError_class = env->FindClass("vam/VorbisFileReader$Error");
-	jmethodID vorbisFileReaderError_constructor = env->GetMethodID(
-			vorbisFileReaderError_class, "<init>", "(Lvam/VorbisFileReader$ErrorType;ILjava/lang/String;)V");
+	jclass error_class = env->FindClass("vam/VorbisFileReader$Error");
+	jmethodID error_constructor = env->GetMethodID(
+			error_class, "<init>", "(Lvam/VorbisFileReader$ErrorType;ILjava/lang/String;)V");
 
 	jobject errorType_object = errorType(env, err.getType());
 
@@ -44,7 +45,7 @@ void throwJavaVorbisFileReaderError(JNIEnv * env, const VorbisFileReader::Error&
 
 	jstring caller_string = env->NewString(caller_jchar, err.getCaller().length());
 
-	jthrowable error_exception = (jthrowable)env->NewObject(vorbisFileReaderError_class, vorbisFileReaderError_constructor, errorType_object, err.getCode(), caller_string);
+	jthrowable error_exception = (jthrowable)env->NewObject(error_class, error_constructor, errorType_object, err.getCode(), caller_string);
 	env->Throw(error_exception);
 }
 

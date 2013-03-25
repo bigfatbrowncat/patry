@@ -5,11 +5,14 @@
  *      Author: imizus
  */
 
+#include <stddef.h>
+
 // JNI includes
 #include <vam/PortAudioPlayer.h>
 
 // Local includes
 #include "PortAudioPlayer.h"
+#include "JNITools.h"
 
 using namespace vam;
 
@@ -39,12 +42,6 @@ void throwPortAudioPlayerResourcesDeallocated(JNIEnv * env)
 {
 	jclass resourcesDeallocatedException_class = env->FindClass("vam/ResourcesDeallocatedException");
 	env->ThrowNew(resourcesDeallocatedException_class, "Resources of the PortAudioPlayer object are deallocated");
-}
-
-void throwSoundSourceResourcesDeallocated(JNIEnv * env)
-{
-	jclass resourcesDeallocatedException_class = env->FindClass("vam/ResourcesDeallocatedException");
-	env->ThrowNew(resourcesDeallocatedException_class, "Resources of the SoundSource object are deallocated");
 }
 
 extern "C"

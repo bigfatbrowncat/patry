@@ -25,7 +25,8 @@ namespace vam
 	public:
 		enum ErrorType
 		{
-			etUnsupportedChannelsNumber		= 0
+			etUnsupportedChannelsNumber		= 0,
+			etInequalRate = 1
 		};
 
 		class Error
@@ -55,6 +56,7 @@ namespace vam
 		virtual void rewind(double position);
 		virtual double getPlayhead() const { return playhead; }
 		virtual double getLength() const;
+		virtual int getRate() const;
 
 		void addSound(SoundSource& sound);
 		void removeSound(SoundSource& sound);

@@ -12,7 +12,7 @@
 namespace vam
 {
 
-	MixedSounds::MixedSounds()
+	MixedSounds::MixedSounds() : playhead(0)
 	{
 		samples = new float[MAX_CHANNELS];
 	}
@@ -55,6 +55,12 @@ namespace vam
 			default:
 				throw Error(etUnsupportedChannelsNumber, L"readSample");
 			}
+
+		}
+
+		if (sounds.size() > 0)
+		{
+			playhead = sounds.front()->getPlayhead();
 		}
 
 		return samples;
@@ -95,12 +101,28 @@ namespace vam
 		return length_max;
 	}
 
+	int MixedSounds::getRate() const
+	{
+		if (sounds.size() == 0)
+		{
+			return 44100;	// By default
+		}
+		else
+		{
+			return sounds.front()->getRate();
+		}
+	}
 
 	void MixedSounds::addSound(SoundSource& sound)
 	{
 		if (sound.getChannels() > MAX_CHANNELS)
 		{
 			throw Error(etUnsupportedChannelsNumber, L"addSound");
+		}
+
+		if (sounds.size() > 0 && sound.getRate() != sounds.front()->getRate())
+		{
+			throw Error(etInequalRate, L"addSound");
 		}
 
 		sounds.push_back(&sound);
