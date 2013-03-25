@@ -42,7 +42,7 @@ public class Application
 				System.out.println("  " + comments[i]);
 			}
 			
-			PortAudioPlayer pap = new PortAudioPlayer(vfr.getChannels(), vfr.getRate(), 64);
+			PortAudioPlayer pap = new PortAudioPlayer(vfr.getChannels(), vfr.getRate(), 1024);
 
 			pap.setSoundSource(vfr);
 			pap.play();

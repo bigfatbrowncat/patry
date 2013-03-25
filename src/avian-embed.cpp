@@ -46,7 +46,7 @@ int main(int argc, const char** argv)
 #else
 	// For other OS: Getting command line as a plain string (encoded in UTF8)
 	int wac = argc;
-	char** wav = argv;
+	const char** wav = argv;
 #endif
 
 	JavaVMInitArgs vmArgs;
