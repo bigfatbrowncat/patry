@@ -46,7 +46,7 @@ namespace vam
 			const float *buffer = sender->soundSource->readSample();
 			for (int chan = 0; chan < sender->soundSource->getChannels(); chan++)
 			{
-				*out++ = buffer[chan] * VOLUME;
+				*out++ = buffer[chan];
 			}
 		}
 		sender->callbackInProgress = false;

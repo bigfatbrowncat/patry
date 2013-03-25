@@ -14,8 +14,6 @@
 
 namespace vam
 {
-	#define VOLUME				0.5
-
 	class PortAudioPlayer : public PortAudioClass
 	{
 	public:

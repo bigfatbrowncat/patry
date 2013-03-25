@@ -34,7 +34,8 @@ $(BIN)/java/%.class: $(SRC)/java/%.java
 	"$(JAVA_HOME)/bin/javac" -sourcepath "$(SRC)/java" -classpath "$(BIN)/java" -d $(BIN)/java $<
 
 $(GEN)/jni/%.h: $(BIN)/java/%.class
-	mkdir -p $(GEN)/jni
+#	mkdir -p $(GEN)/jni
+	if [ ! -d "$(dir $@)" ]; then mkdir -p "$(dir $@)"; fi
 	"$(JAVA_HOME)/bin/javah" -classpath "$(BIN)/java" -o $@ $(subst /,.,$(basename $(patsubst $(GEN)/jni/%, %, $@)))
 
 
