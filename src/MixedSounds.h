@@ -50,6 +50,7 @@ namespace vam
 		float* samples;
 	public:
 		MixedSounds();
+		virtual ~MixedSounds();
 
 		virtual const float* readSample();
 		virtual int getChannels() const;
@@ -61,8 +62,6 @@ namespace vam
 		void addSound(SoundSource& sound);
 		void removeSound(SoundSource& sound);
 		const list<SoundSource*> getSounds() const { return sounds; }
-
-		virtual ~MixedSounds();
 	};
 
 } /* namespace vam */

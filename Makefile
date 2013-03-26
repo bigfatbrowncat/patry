@@ -44,22 +44,26 @@ JAVA_CLASSES = $(BIN)/java/app/Application.class \
                $(BIN)/java/vam/PortAudioPlayer.class \
                $(BIN)/java/vam/ResourcesDeallocatedException.class \
                $(BIN)/java/vam/SoundSource.class \
-               $(BIN)/java/vam/MixedSounds.class
+               $(BIN)/java/vam/MixedSounds.class \
+               $(BIN)/java/vam/MovedSound.class
 
 JNI_HEADERS = $(GEN)/jni/vam/VorbisFileReader.h \
               $(GEN)/jni/vam/PortAudioPlayer.h \
               $(GEN)/jni/vam/MixedSounds.h \
-              $(GEN)/jni/vam/SoundSource.h
+              $(GEN)/jni/vam/SoundSource.h \
+              $(GEN)/jni/vam/MovedSound.h
               
 JNI_OBJECTS = $(OBJ)/VorbisFileReader_jni.o \
               $(OBJ)/PortAudioPlayer_jni.o \
               $(OBJ)/MixedSounds_jni.o \
-              $(OBJ)/SoundSource_jni.o
+              $(OBJ)/SoundSource_jni.o \
+              $(OBJ)/MovedSound_jni.o
               
 NATIVE_OBJECTS = $(OBJ)/VorbisFileReader.o \
                  $(OBJ)/PortAudioClass.o \
                  $(OBJ)/PortAudioPlayer.o \
                  $(OBJ)/MixedSounds.o \
+                 $(OBJ)/MovedSound.o \
                  $(OBJ)/JNITools.o
 
 $(OBJ)/%.o: $(SRC)/%.cpp $(SRC)/*.h
