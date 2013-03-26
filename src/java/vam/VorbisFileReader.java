@@ -15,7 +15,6 @@ public class VorbisFileReader extends SoundSource
 		etInvalidArgument(8),
 		etStrangeError(9),
 		etCantSeek(10),
-		etSeekOutOfRange(11),
 		
 		resourcesDeallocated(100);
 		
@@ -38,7 +37,6 @@ public class VorbisFileReader extends SoundSource
 			case 8: return etInvalidArgument;
 			case 9: return etStrangeError;
 			case 10: return etCantSeek;
-			case 11: return etSeekOutOfRange;
 			case 100: return resourcesDeallocated;
 			default:
 				throw new RuntimeException("Strange value");

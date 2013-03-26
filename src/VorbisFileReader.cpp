@@ -79,19 +79,19 @@ namespace vam
 		}
 		else if (ret == 0)
 		{
-			state = sEndOfData;
+			state = sAfterEnd;
 		}
 		else
 		{
-			buffer_position = 0;
+			cursor_position_in_buffer = 0;
 			buffer_size = ret;
-			state = sReady;
+			state = sReading;
 		}
 	}
 
 	void VorbisFileReader::updatePlayhead()
 	{
-		playhead = buffer_start_time + (double)buffer_position / rate;
+		playhead = buffer_start_time + (double)cursor_position_in_buffer / rate;
 	}
 
 
@@ -159,22 +159,31 @@ namespace vam
 	const float* VorbisFileReader::readSample()
 	{
 		bool output_silence = false;
-		if (state == sReady)
+		if (state == sBeforeStart)
+		{
+			cursor_position_in_buffer++;
+			updatePlayhead();
+			if (playhead >= 0)
+			{
+				state = sReading;
+			}
+		}
+		else if (state == sReading)
 		{
 			// Check if the buffer is filled
-			if (buffer_position >= buffer_size)
+			if (cursor_position_in_buffer >= buffer_size)
 			{
 				fillBuffer();
 			}
 
 			// Buffer is ready, reading a sample
-			if (state == sReady)
+			if (state == sReading)
 			{
 				for (int i = 0; i < channels; i++)
 				{
-					read_buffer[i] = buffer[i][buffer_position];
+					read_buffer[i] = buffer[i][cursor_position_in_buffer];
 				}
-				buffer_position++;
+				cursor_position_in_buffer++;
 				updatePlayhead();
 
 				return read_buffer;
@@ -182,7 +191,7 @@ namespace vam
 
 		}
 
-		// If the reader isn't in the Ready state, returning zero
+		// If the reader isn't in the sReading state, returning zero
 		for (int i = 0; i < channels; i++)
 		{
 			read_buffer[i] = 0.f;
@@ -195,11 +204,11 @@ namespace vam
 	{
 		if (position < 0)
 		{
-			throwError(etSeekOutOfRange, L"rewind (1)");
-			state = sError;
+			state = sBeforeStart;
+			buffer_start_time = position;
+			cursor_position_in_buffer = 0;
 		}
-
-		if (position < length)
+		else if (position < length)
 		{
 			int ret = ov_time_seek(&vf, position);
 			if (ret < 0)
@@ -211,12 +220,12 @@ namespace vam
 			{
 				fillBuffer();
 			}
-			state = sReady;
+			state = sReading;
 		}
 		else
 		{
 			playhead = position;
-			state = sEndOfData;
+			state = sAfterEnd;
 		}
 		updatePlayhead();
 	}

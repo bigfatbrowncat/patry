@@ -57,7 +57,7 @@ namespace vam
 				throw Error(etUnsupportedChannelsNumber, L"readSample");
 			}
 
-			if ((*iter)->getState() != sEndOfData)
+			if ((*iter)->getState() != sAfterEnd)
 			{
 				endReached = false;
 			}
@@ -70,7 +70,7 @@ namespace vam
 
 		if (endReached)
 		{
-			state = sEndOfData;
+			state = sAfterEnd;
 		}
 
 		return samples;

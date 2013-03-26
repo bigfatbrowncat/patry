@@ -35,8 +35,7 @@ namespace vam
 			etBadLink = 7,
 			etInvalidArgument = 8,
 			etStrangeError = 9,
-			etCantSeek = 10,
-			etSeekOutOfRange = 11
+			etCantSeek = 10
 		};
 
 		class Error
@@ -60,7 +59,7 @@ namespace vam
 		OggVorbis_File vf;
 		int current_section;
 
-		int buffer_position;
+		int cursor_position_in_buffer;
 		float** buffer;			// This buffer belongs to the Ogg Vorbis decoder
 		int buffer_size;
 

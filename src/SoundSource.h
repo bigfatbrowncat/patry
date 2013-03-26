@@ -8,16 +8,17 @@ namespace vam
 	public:
 		enum State
 		{
-			sReady = 0,
-			sEndOfData = 1,
-			sError = 2
+			sBeforeStart = 0,
+			sReading = 1,
+			sAfterEnd = 2,
+			sError = 3
 		};
 
 	protected:
 		State state;
 
 	public:
-		SoundSource() : state(sReady) {}
+		SoundSource() : state(sReading) {}
 
 		virtual const float* readSample() = 0;
 		virtual int getChannels() const = 0;
@@ -26,6 +27,8 @@ namespace vam
 		virtual double getLength() const = 0;
 		virtual int getRate() const = 0;
 		virtual State getState() const { return state; }
+
+		virtual ~SoundSource() {}
 	};
 }
 
