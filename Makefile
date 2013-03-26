@@ -46,11 +46,13 @@ JAVA_CLASSES = $(BIN)/java/app/Application.class \
 
 JNI_HEADERS = $(GEN)/jni/vam/VorbisFileReader.h \
               $(GEN)/jni/vam/PortAudioPlayer.h \
-              $(GEN)/jni/vam/MixedSounds.h
+              $(GEN)/jni/vam/MixedSounds.h \
+              $(GEN)/jni/vam/SoundSource.h
               
 JNI_OBJECTS = $(OBJ)/VorbisFileReader_jni.o \
               $(OBJ)/PortAudioPlayer_jni.o \
-              $(OBJ)/MixedSounds_jni.o
+              $(OBJ)/MixedSounds_jni.o \
+              $(OBJ)/SoundSource_jni.o
               
 NATIVE_OBJECTS = $(OBJ)/VorbisFileReader.o \
                  $(OBJ)/PortAudioClass.o \

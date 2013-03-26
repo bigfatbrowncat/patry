@@ -140,22 +140,6 @@ extern "C"
 		}
 	}
 
-	JNIEXPORT jobject JNICALL Java_vam_VorbisFileReader_getState(JNIEnv * env, jobject vorbisFileReader_object)
-	{
-		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
-		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
-		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwVorbisFileReaderResourcesDeallocated(env); return NULL; }
-
-		jclass state_class = env->FindClass("vam/VorbisFileReader$State");
-		jmethodID fromValue_method = env->GetMethodID(state_class, "fromValue", "(I)Lvam/VorbisFileReader$State;");
-
-		int state = (int)nativeInstance->getState();
-
-		jobject state_object = env->CallStaticObjectMethod(state_class, fromValue_method, state);
-		return state_object;
-	}
-
 	JNIEXPORT jdouble JNICALL Java_vam_VorbisFileReader_getPlayhead(JNIEnv * env, jobject vorbisFileReader_object)
 	{
 		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);

@@ -2,6 +2,29 @@ package vam;
 
 public abstract class SoundSource
 {
+	public enum State
+	{
+		sReady(0),
+		sEndOfData(1),
+		sError(2);
+
+		@SuppressWarnings("unused")	// used in native code
+		private int value;
+		
+		State(int value) { this.value = value; }
+		static State fromValue(int i)
+		{
+			switch (i)
+			{
+			case 0: return sReady;
+			case 1: return sEndOfData;
+			case 2: return sError;
+			default:
+				throw new RuntimeException("Strange value");
+			}
+		}
+	}
+		
 	public static class Error extends Exception
 	{
 		private static final long serialVersionUID = 8833341961960069603L;
@@ -31,4 +54,6 @@ public abstract class SoundSource
 	public abstract double getPlayhead();
 	public abstract double getLength();
 	public abstract int getRate();
+	public native State getState();
+
 }

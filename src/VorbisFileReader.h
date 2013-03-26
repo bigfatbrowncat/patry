@@ -56,12 +56,6 @@ namespace vam
 			wstring getCaller() const { return caller; }
 		};
 
-		enum State
-		{
-			sReady = 0,
-			sEndOfData = 1,
-			sError = 2
-		};
 	private:
 		OggVorbis_File vf;
 		int current_section;

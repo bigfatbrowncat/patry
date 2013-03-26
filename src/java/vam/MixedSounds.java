@@ -93,6 +93,9 @@ public class MixedSounds extends SoundSource
 
 	@Override
 	public native int getRate();
+	
+	@Override
+	public native State getState();
 
 	public native void addSound(SoundSource sound);
 	public native void removeSound(SoundSource sound);

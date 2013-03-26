@@ -64,29 +64,6 @@ public class VorbisFileReader extends SoundSource
 		public String getCaller() { return caller; }		
 	}
 	
-	public enum State
-	{
-		sReady(0),
-		sEndOfData(1),
-		sError(2);
-
-		@SuppressWarnings("unused")	// used in native code
-		private int value;
-		
-		State(int value) { this.value = value; }
-		static State fromValue(int i)
-		{
-			switch (i)
-			{
-			case 0: return sReady;
-			case 1: return sEndOfData;
-			case 2: return sError;
-			default:
-				throw new RuntimeException("Strange value");
-			}
-		}
-	}
-	
 	// *** All the private fields and methods are implemented in C++ class ***
 	
 
@@ -154,7 +131,6 @@ public class VorbisFileReader extends SoundSource
 	@Override
 	public native int getRate();
 
-	public native State getState();
 	public native int getBitsPerSecond();
 	public native String getVendor();
 	public native String[] getComments();
