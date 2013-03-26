@@ -30,6 +30,7 @@ namespace vam
 			samples[i] = 0;
 		}
 
+		bool endReached = true;
 		for (list<SoundSource*>::iterator iter = sounds.begin(); iter != sounds.end(); iter++)
 		{
 			if (fabs((*iter)->getPlayhead() - playhead) > 1.0 / (*iter)->getRate())
@@ -56,11 +57,20 @@ namespace vam
 				throw Error(etUnsupportedChannelsNumber, L"readSample");
 			}
 
+			if ((*iter)->getState() != sEndOfData)
+			{
+				endReached = false;
+			}
 		}
 
 		if (sounds.size() > 0)
 		{
 			playhead = sounds.front()->getPlayhead();
+		}
+
+		if (endReached)
+		{
+			state = sEndOfData;
 		}
 
 		return samples;

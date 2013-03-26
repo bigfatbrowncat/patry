@@ -41,8 +41,10 @@ $(GEN)/jni/%.h: $(BIN)/java/%.class
 
 JAVA_CLASSES = $(BIN)/java/app/Application.class \
                $(BIN)/java/vam/VorbisFileReader.class \
+               $(BIN)/java/vam/PortAudioPlayer.class \
                $(BIN)/java/vam/ResourcesDeallocatedException.class \
-               $(BIN)/java/vam/SoundSource.class
+               $(BIN)/java/vam/SoundSource.class \
+               $(BIN)/java/vam/MixedSounds.class
 
 JNI_HEADERS = $(GEN)/jni/vam/VorbisFileReader.h \
               $(GEN)/jni/vam/PortAudioPlayer.h \

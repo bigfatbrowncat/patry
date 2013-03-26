@@ -167,7 +167,7 @@ extern "C"
 		return nativeInstance->getRate();
 	}
 
-	JNIEXPORT void JNICALL Java_vam_MixedSounds_addSound(JNIEnv * env, jobject mixedSounds_object, jobject soundSource_object)
+	JNIEXPORT void JNICALL Java_vam_MixedSounds_addSoundNative(JNIEnv * env, jobject mixedSounds_object, jobject soundSource_object)
 	{
 		// Getting the PortAudio native object
 		jclass mixedSounds_class = env->GetObjectClass(mixedSounds_object);
@@ -185,7 +185,7 @@ extern "C"
 		mixedSounds_nativeInstance->addSound(*soundSource_nativeInstance);
 	}
 
-	JNIEXPORT void JNICALL Java_vam_MixedSounds_removeSound(JNIEnv * env, jobject mixedSounds_object, jobject soundSource_object)
+	JNIEXPORT void JNICALL Java_vam_MixedSounds_removeSoundNative(JNIEnv * env, jobject mixedSounds_object, jobject soundSource_object)
 	{
 		// Getting the PortAudio native object
 		jclass mixedSounds_class = env->GetObjectClass(mixedSounds_object);

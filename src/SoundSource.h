@@ -17,6 +17,8 @@ namespace vam
 		State state;
 
 	public:
+		SoundSource() : state(sReady) {}
+
 		virtual const float* readSample() = 0;
 		virtual int getChannels() const = 0;
 		virtual void rewind(double position) = 0;

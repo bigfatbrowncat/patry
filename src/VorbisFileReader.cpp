@@ -162,7 +162,7 @@ namespace vam
 		if (state == sReady)
 		{
 			// Check if the buffer is filled
-			if (buffer_position == buffer_size)
+			if (buffer_position >= buffer_size)
 			{
 				fillBuffer();
 			}

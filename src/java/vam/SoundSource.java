@@ -20,7 +20,7 @@ public abstract class SoundSource
 			case 1: return sEndOfData;
 			case 2: return sError;
 			default:
-				throw new RuntimeException("Strange value");
+				throw new RuntimeException("Strange value: " + i);
 			}
 		}
 	}
@@ -54,6 +54,7 @@ public abstract class SoundSource
 	public abstract double getPlayhead();
 	public abstract double getLength();
 	public abstract int getRate();
+	
 	public native State getState();
 
 }

@@ -1,5 +1,8 @@
 package vam;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MixedSounds extends SoundSource
 {
 	public enum ErrorType
@@ -38,6 +41,8 @@ public class MixedSounds extends SoundSource
 		public String getCaller() { return caller; }		
 	}
 
+	private List<SoundSource> sounds;
+	
 	private native static long createNativeInstance();
 	
 	/**
@@ -48,6 +53,7 @@ public class MixedSounds extends SoundSource
 	public MixedSounds()
 	{
 		super(createNativeInstance());
+		sounds = new ArrayList<SoundSource>();
 	}
 
 	/**
@@ -67,6 +73,7 @@ public class MixedSounds extends SoundSource
 	{
 		try
 		{
+			System.out.println("ms fin");
 			close();
 		}
 		finally
@@ -94,9 +101,19 @@ public class MixedSounds extends SoundSource
 	@Override
 	public native int getRate();
 	
-	@Override
-	public native State getState();
+	private native void addSoundNative(SoundSource sound) throws Error;
+	private native void removeSoundNative(SoundSource sound);
 
-	public native void addSound(SoundSource sound);
-	public native void removeSound(SoundSource sound);
+	public void addSound(SoundSource sound) throws Error
+	{
+		addSoundNative(sound);
+		sounds.add(sound);
+	}
+	
+	public void removeSound(SoundSource sound)
+	{
+		removeSoundNative(sound);
+		sounds.remove(sound);
+	}
+
 }
