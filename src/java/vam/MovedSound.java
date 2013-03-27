@@ -60,11 +60,13 @@ public class MovedSound extends SoundSource
 	@Override
 	public native int getRate();
 
-	private native void setSoundNative(SoundSource sound) throws Error;
+	private native void setSoundNative(SoundSource sound);
 
-	public void setSound(SoundSource sound) throws Error
+	public void setSound(SoundSource sound)
 	{
 		setSoundNative(sound);
 		this.sound = sound; 
 	}
+	
+	public native void setDelay(double value);
 }

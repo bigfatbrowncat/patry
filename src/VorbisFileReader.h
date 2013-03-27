@@ -64,7 +64,7 @@ namespace vam
 		int buffer_size;
 
 		FILE* file;
-		float* read_buffer;		// This buffer is our
+		float* read_buffer;		// This buffer is ours
 
 		int buffer_size_request;
 

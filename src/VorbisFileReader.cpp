@@ -159,10 +159,11 @@ namespace vam
 	const float* VorbisFileReader::readSample()
 	{
 		bool output_silence = false;
+		cursor_position_in_buffer ++;
+		updatePlayhead();
+
 		if (state == sBeforeStart)
 		{
-			cursor_position_in_buffer++;
-			updatePlayhead();
 			if (playhead >= 0)
 			{
 				state = sReading;
@@ -174,6 +175,7 @@ namespace vam
 			if (cursor_position_in_buffer >= buffer_size)
 			{
 				fillBuffer();
+				updatePlayhead();
 			}
 
 			// Buffer is ready, reading a sample
@@ -183,8 +185,6 @@ namespace vam
 				{
 					read_buffer[i] = buffer[i][cursor_position_in_buffer];
 				}
-				cursor_position_in_buffer++;
-				updatePlayhead();
 
 				return read_buffer;
 			}

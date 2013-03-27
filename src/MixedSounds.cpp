@@ -17,6 +17,17 @@ namespace vam
 		samples = new float[MAX_CHANNELS];
 	}
 
+	void MixedSounds::checkSoundPositions()
+	{
+		for (list<SoundSource*>::iterator iter = sounds.begin(); iter != sounds.end(); iter++)
+		{
+			if (fabs((*iter)->getPlayhead() - playhead) > 1.0 / (*iter)->getRate())
+			{
+				(*iter)->rewind(playhead);
+			}
+		}
+	}
+
 	const float* MixedSounds::readSample()
 	{
 		// Checking for playheads equality
@@ -31,13 +42,12 @@ namespace vam
 		}
 
 		bool endReached = true;
+		bool startPassed = false;
+
+		checkSoundPositions();
+
 		for (list<SoundSource*>::iterator iter = sounds.begin(); iter != sounds.end(); iter++)
 		{
-			if (fabs((*iter)->getPlayhead() - playhead) > 1.0 / (*iter)->getRate())
-			{
-				(*iter)->rewind(playhead);
-			}
-
 			const float* iterSample = (*iter)->readSample();
 			switch ((*iter)->getChannels())
 			{
@@ -61,16 +71,26 @@ namespace vam
 			{
 				endReached = false;
 			}
+
+			if ((*iter)->getState() != sBeforeStart)
+			{
+				startPassed = true;
+			}
 		}
 
-		if (sounds.size() > 0)
-		{
-			playhead = sounds.front()->getPlayhead();
-		}
+		playhead += 1.0 / getRate();
 
 		if (endReached)
 		{
 			state = sAfterEnd;
+		}
+		else if (!startPassed)
+		{
+			state = sBeforeStart;
+		}
+		else
+		{
+			state = sReading;
 		}
 
 		return samples;

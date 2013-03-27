@@ -16,11 +16,22 @@ namespace vam
 	class MovedSound: public SoundSource
 	{
 	private:
+		float** second_buffer;		// This buffer is ours
+		double second_buffer_start_time;
+		int cursor_position_in_second_buffer;
+		int second_buffer_size;
+
+		float read_buffer[MAX_CHANNELS];
+
 		SoundSource* sound;
 		double delay;
 		double playhead;
 
 		void checkSoundPosition();
+
+		void fillBuffer();
+		void updatePlayhead();
+
 	public:
 		MovedSound();
 		virtual ~MovedSound();
@@ -31,6 +42,9 @@ namespace vam
 		virtual double getPlayhead() const;
 		virtual double getLength() const;
 		virtual int getRate() const;
+
+		void setSound(SoundSource& sound);
+		void setDelay(double value);
 	};
 
 } /* namespace vam */

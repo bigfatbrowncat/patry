@@ -15,8 +15,6 @@
 
 using namespace std;
 
-#define MAX_CHANNELS			2
-
 namespace vam
 {
 
@@ -48,6 +46,8 @@ namespace vam
 		list<SoundSource*> sounds;
 		double playhead;
 		float* samples;
+
+		void checkSoundPositions();
 	public:
 		MixedSounds();
 		virtual ~MixedSounds();

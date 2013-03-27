@@ -1,6 +1,8 @@
 #ifndef SOUNDSOURCE_H_
 #define SOUNDSOURCE_H_
 
+#define MAX_CHANNELS			2
+
 namespace vam
 {
 	class SoundSource
