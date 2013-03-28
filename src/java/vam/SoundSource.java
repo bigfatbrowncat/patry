@@ -4,10 +4,8 @@ public abstract class SoundSource
 {
 	public enum State
 	{
-		sBeforeStart(0),
-		sReading(1),
-		sAfterEnd(2),
-		sError(3);
+		sReady(0),
+		sError(1);
 
 		@SuppressWarnings("unused")	// used in native code
 		private int value;
@@ -17,10 +15,8 @@ public abstract class SoundSource
 		{
 			switch (i)
 			{
-			case 0: return sBeforeStart;
-			case 1: return sReading;
-			case 2: return sAfterEnd;
-			case 3: return sError;
+			case 0: return sReady;
+			case 1: return sError;
 			default:
 				throw new RuntimeException("Strange value: " + i);
 			}

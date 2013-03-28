@@ -19,7 +19,8 @@ namespace vam
 		float** second_buffer;		// This buffer is ours
 		double second_buffer_start_time;
 		int cursor_position_in_second_buffer;
-		int second_buffer_size;
+		int second_buffer_allocated_size;
+		int second_buffer_actual_size;
 
 		float read_buffer[MAX_CHANNELS];
 

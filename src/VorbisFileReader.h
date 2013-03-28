@@ -61,7 +61,7 @@ namespace vam
 
 		int cursor_position_in_buffer;
 		float** buffer;			// This buffer belongs to the Ogg Vorbis decoder
-		int buffer_size;
+		int buffer_actual_size;
 
 		FILE* file;
 		float* read_buffer;		// This buffer is ours

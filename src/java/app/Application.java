@@ -60,7 +60,7 @@ public class Application
 			
 			pap.play();
 			
-			while (mis.getState() != VorbisFileReader.State.sAfterEnd)
+			while (mis.getPlayhead() < mis.getEndTime())
 			{
 				try
 				{
@@ -125,7 +125,7 @@ public class Application
 			pap.play();
 			
 			System.out.println();
-			while (vfr.getState() != VorbisFileReader.State.sAfterEnd)
+			while (vfr.getPlayhead() < vfr.getEndTime())
 			{
 				try
 				{
@@ -204,7 +204,7 @@ public class Application
 			pap.setSoundSource(ms);
 			pap.play();
 			
-			while (ms.getState() != VorbisFileReader.State.sAfterEnd)
+			while (ms.getPlayhead() < ms.getEndTime())
 			{
 				try
 				{

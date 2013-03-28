@@ -10,17 +10,15 @@ namespace vam
 	public:
 		enum State
 		{
-			sBeforeStart = 0,
-			sReading = 1,
-			sAfterEnd = 2,
-			sError = 3
+			sReady = 0,
+			sError = 1
 		};
 
 	protected:
 		State state;
 
 	public:
-		SoundSource() : state(sReading) {}
+		SoundSource() : state(sReady) {}
 
 		virtual const float* readSample() = 0;
 		virtual int getChannels() const = 0;

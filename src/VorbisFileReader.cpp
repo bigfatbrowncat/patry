@@ -69,23 +69,20 @@ namespace vam
 		buffer_start_time = ov_time_tell(&vf);
 		if (buffer_start_time < 0)
 		{
+			state = sError;
 			throwVorbisError((int)buffer_start_time, L"fillBuffer (1)");
 		}
 
 		int ret = ov_read_float(&vf, &buffer, buffer_size_request, &current_section);
 		if (ret < 0)
 		{
+			state = sError;
 			throwVorbisError(ret, L"fillBuffer (2)");
 		}
-		else if (ret == 0)
-		{
-			state = sAfterEnd;
-		}
-		else
+		else if (ret >= 0)
 		{
 			cursor_position_in_buffer = 0;
-			buffer_size = ret;
-			state = sReading;
+			buffer_actual_size = ret;
 		}
 	}
 
@@ -158,75 +155,62 @@ namespace vam
 
 	const float* VorbisFileReader::readSample()
 	{
-		bool output_silence = false;
+		bool playhead_was_negative = playhead < 0;
+
 		cursor_position_in_buffer ++;
 		updatePlayhead();
 
-		if (state == sBeforeStart)
+		if (playhead >= 0 && playhead_was_negative)													// if we have just stepped into the sound
 		{
-			if (playhead >= 0)
-			{
-				state = sReading;
-			}
+			fillBuffer();
 		}
-		else if (state == sReading)
+
+		if (buffer_actual_size > 0)																	// if the buffer isn't empty
 		{
-			// Check if the buffer is filled
-			if (cursor_position_in_buffer >= buffer_size)
+			if (cursor_position_in_buffer >= buffer_actual_size)									// if the buffer has run away
 			{
 				fillBuffer();
-				updatePlayhead();
 			}
 
-			// Buffer is ready, reading a sample
-			if (state == sReading)
+			for (int i = 0; i < channels; i++)														// filling the read buffer with the sound buffer sample at position
 			{
-				for (int i = 0; i < channels; i++)
-				{
-					read_buffer[i] = buffer[i][cursor_position_in_buffer];
-				}
-
-				return read_buffer;
+				read_buffer[i] = buffer[i][cursor_position_in_buffer];
 			}
-
 		}
-
-		// If the reader isn't in the sReading state, returning zero
-		for (int i = 0; i < channels; i++)
+		else
 		{
-			read_buffer[i] = 0.f;
+			for (int i = 0; i < channels; i++)														// filling the read buffer with zeroes
+			{
+				read_buffer[i] = 0.f;
+			}
 		}
+
 		return read_buffer;
 
 	}
 
 	void VorbisFileReader::rewind(double position)
 	{
-		if (position < 0)
+		if (position < 0 || position >= length)
 		{
-			state = sBeforeStart;
 			buffer_start_time = position;
+			buffer_actual_size = 0;
 			cursor_position_in_buffer = 0;
 		}
-		else if (position < length)
+		else
 		{
 			int ret = ov_time_seek(&vf, position);
 			if (ret < 0)
 			{
-				throwVorbisError(ret, L"rewind (2)");
+				throwVorbisError(ret, L"rewind");
 			}
 
 			if (ret == 0)
 			{
 				fillBuffer();
 			}
-			state = sReading;
 		}
-		else
-		{
-			playhead = position;
-			state = sAfterEnd;
-		}
+
 		updatePlayhead();
 	}
 

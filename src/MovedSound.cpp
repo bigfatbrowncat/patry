@@ -14,49 +14,35 @@ namespace vam
 {
 	void MovedSound::checkSoundPosition()
 	{
-		if (sound != NULL)
+		if (fabs(sound->getPlayhead() - playhead + delay) > 1.0 / sound->getRate())
 		{
-			if (fabs(sound->getPlayhead() - playhead + delay) > 1.0 / sound->getRate())
-			{
-				sound->rewind(playhead - delay);
-			}
+			sound->rewind(playhead - delay);
 		}
 	}
 
 	void MovedSound::fillBuffer()
 	{
-		//if (second_buffer_position >= second_buffer_size)
-		//{
+		second_buffer_start_time = playhead;
+		if (sound != NULL)
+		{
 			checkSoundPosition();
 
-			second_buffer_start_time = playhead;
-
-			if (sound != NULL)
+			for (int i = 0; i < second_buffer_allocated_size; i++)
 			{
-				for (int i = 0; i < second_buffer_size; i++)
+				const float* sample = sound->readSample();
+				for (int ch = 0; ch < sound->getChannels(); ch++)
 				{
-					const float* sample = sound->readSample();
-					for (int ch = 0; ch < sound->getChannels(); ch++)
-					{
-						second_buffer[ch][i] = sample[ch];
-					}
+					second_buffer[ch][i] = sample[ch];
 				}
-				state = sound->getState();
 			}
-			else
-			{
-				for (int i = 0; i < second_buffer_size; i++)
-				{
-					for (int ch = 0; ch < MAX_CHANNELS; ch++)
-					{
-						second_buffer[ch][i] = 0;
-					}
-				}
-				state = sAfterEnd;
-			}
+			second_buffer_actual_size = second_buffer_allocated_size;
+		}
+		else
+		{
+			second_buffer_actual_size = 0;
+		}
 
-			cursor_position_in_second_buffer = 0;
-	//	}
+		cursor_position_in_second_buffer = 0;
 	}
 
 	void MovedSound::updatePlayhead()
@@ -69,12 +55,15 @@ namespace vam
 	MovedSound::MovedSound() :
 			sound(NULL), delay(0), playhead(0),
 			second_buffer(NULL),
-			cursor_position_in_second_buffer(256), second_buffer_size(256), second_buffer_start_time(0)
+			cursor_position_in_second_buffer(256),
+			second_buffer_allocated_size(256),
+			second_buffer_start_time(0),
+			second_buffer_actual_size(0)
 	{
 		second_buffer = new float*[MAX_CHANNELS];
 		for (int i = 0; i < MAX_CHANNELS; i++)
 		{
-			second_buffer[i] = new float[second_buffer_size];
+			second_buffer[i] = new float[second_buffer_allocated_size];
 		}
 
 		fillBuffer();
@@ -82,22 +71,30 @@ namespace vam
 
 	const float* MovedSound::readSample()
 	{
+		bool playhead_was_negative = playhead < getStartTime();
+
 		cursor_position_in_second_buffer ++;
 		updatePlayhead();
 
-		if (cursor_position_in_second_buffer >= second_buffer_size)
+		if (playhead >= getStartTime() && playhead_was_negative)
 		{
 			fillBuffer();
 		}
 
 		int channels = (sound != NULL ? sound->getChannels() : MAX_CHANNELS);
-		if (state == sReading)
+
+		if (second_buffer_actual_size > 0)
 		{
+
+			if (cursor_position_in_second_buffer >= second_buffer_allocated_size)
+			{
+				fillBuffer();
+			}
+
 			for (int i = 0; i < channels; i++)
 			{
 				read_buffer[i] = second_buffer[i][cursor_position_in_second_buffer];
 			}
-			updatePlayhead();
 		}
 		else
 		{

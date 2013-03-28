@@ -30,8 +30,6 @@ namespace vam
 
 	const float* MixedSounds::readSample()
 	{
-		// Checking for playheads equality
-
 		// TODO No buffering yet, but it should be added
 
 		int channels = getChannels();
@@ -41,9 +39,7 @@ namespace vam
 			samples[i] = 0;
 		}
 
-		bool endReached = true;
-		bool startPassed = false;
-
+		// Checking for playheads equality
 		checkSoundPositions();
 
 		for (list<SoundSource*>::iterator iter = sounds.begin(); iter != sounds.end(); iter++)
@@ -67,31 +63,9 @@ namespace vam
 				throw Error(etUnsupportedChannelsNumber, L"readSample");
 			}
 
-			if ((*iter)->getState() != sAfterEnd)
-			{
-				endReached = false;
-			}
-
-			if ((*iter)->getState() != sBeforeStart)
-			{
-				startPassed = true;
-			}
 		}
 
 		playhead += 1.0 / getRate();
-
-		if (endReached)
-		{
-			state = sAfterEnd;
-		}
-		else if (!startPassed)
-		{
-			state = sBeforeStart;
-		}
-		else
-		{
-			state = sReading;
-		}
 
 		return samples;
 	}
