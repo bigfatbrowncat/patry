@@ -2,6 +2,7 @@ package app;
 
 import vam.MixedSounds;
 import vam.MovedSound;
+import vam.SoundSource;
 import vam.PortAudioPlayer;
 import vam.VorbisFileReader;
 
@@ -9,8 +10,7 @@ public class Application
 {
 	public static final int RESULT_SUCCESS				= 0;
 	public static final int RESULT_NO_INPUT_FILE		= 1;
-	public static final int RESULT_VORBIS_ERROR			= 2;
-	public static final int RESULT_MIXED_ERROR			= 3;
+	public static final int RESULT_SOUNDSOURCE_ERROR			= 2;
 
 	private static String twoDig(int value)
 	{
@@ -82,16 +82,11 @@ public class Application
 			System.out.println("\nBye.");
 			System.exit(RESULT_SUCCESS);
 		} 
-		catch (VorbisFileReader.Error e)
+		catch (SoundSource.Error e)
 		{
 			e.printStackTrace();
-			System.exit(RESULT_VORBIS_ERROR);
+			System.exit(RESULT_SOUNDSOURCE_ERROR);
 		} 
-		catch (MixedSounds.Error e)
-		{
-			e.printStackTrace();
-			System.exit(RESULT_MIXED_ERROR);
-		}
 	}	
 	
 	public static void main0(String[] args)
@@ -158,7 +153,7 @@ public class Application
 		catch (VorbisFileReader.Error e)
 		{
 			e.printStackTrace();
-			System.exit(RESULT_VORBIS_ERROR);
+			System.exit(RESULT_SOUNDSOURCE_ERROR);
 		}
 	}
 	
@@ -236,15 +231,10 @@ public class Application
 			System.out.println("\nBye.");
 			System.exit(RESULT_SUCCESS);
 		} 
-		catch (VorbisFileReader.Error e)
+		catch (SoundSource.Error e)
 		{
 			e.printStackTrace();
-			System.exit(RESULT_VORBIS_ERROR);
+			System.exit(RESULT_SOUNDSOURCE_ERROR);
 		} 
-		catch (MixedSounds.Error e)
-		{
-			e.printStackTrace();
-			System.exit(RESULT_MIXED_ERROR);
-		}
 	}
 }

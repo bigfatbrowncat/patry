@@ -16,12 +16,6 @@
 
 using namespace vam;
 
-void throwMovedSoundResourcesDeallocated(JNIEnv * env)
-{
-	jclass resourcesDeallocatedException_class = env->FindClass("vam/ResourcesDeallocatedException");
-	env->ThrowNew(resourcesDeallocatedException_class, "Resources of the MovedSound object are deallocated");
-}
-
 extern "C"
 {
 	JNIEXPORT jlong JNICALL Java_vam_MovedSound_createNativeInstance(JNIEnv * env, jclass movedSound_class)
@@ -32,118 +26,129 @@ extern "C"
 
 	JNIEXPORT void JNICALL Java_vam_MovedSound_destroyNativeInstance(JNIEnv * env, jobject movedSound_object)
 	{
-		jclass movedSound_class = env->GetObjectClass(movedSound_object);
-		jfieldID nativeInstance_field = env->GetFieldID(movedSound_class, "nativeInstance", "J");
-		MovedSound* nativeInstance = (MovedSound*)env->GetLongField(movedSound_object, nativeInstance_field);
+		MovedSound* nativeInstance = getAndCheckNativeInstance<MovedSound>(env, movedSound_object);
 
 		if (nativeInstance != NULL)	delete nativeInstance;
 	}
 
 	JNIEXPORT jfloatArray JNICALL Java_vam_MovedSound_readSample(JNIEnv * env, jobject movedSound_object)
 	{
-		jclass movedSound_class = env->GetObjectClass(movedSound_object);
-		jfieldID nativeInstance_field = env->GetFieldID(movedSound_class, "nativeInstance", "J");
-		MovedSound* nativeInstance = (MovedSound*)env->GetLongField(movedSound_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwMovedSoundResourcesDeallocated(env); return NULL; }
+		MovedSound* nativeInstance = getAndCheckNativeInstance<MovedSound>(env, movedSound_object);
 
-/*		try
-		{*/
+		try
+		{
 			const float* sample = nativeInstance->readSample();
 			int channels = nativeInstance->getChannels();
 
 			jfloatArray sample_array = env->NewFloatArray(channels);
 			env->SetFloatArrayRegion(sample_array, 0, channels, sample);
 			return sample_array;
-/*		}
-		catch (const MovedSound::Error& err)
+		}
+		catch (const SoundSource::Error& err)
 		{
-			throwJavaMovedSoundError(env, err);
-		}*/
-		return NULL;
-
+			catchSoundSourceErrors(env, err);
+			return NULL;
+		}
 	}
 
 	JNIEXPORT void JNICALL Java_vam_MovedSound_rewind(JNIEnv * env, jobject movedSound_object, jdouble position)
 	{
-		jclass movedSound_class = env->GetObjectClass(movedSound_object);
-		jfieldID nativeInstance_field = env->GetFieldID(movedSound_class, "nativeInstance", "J");
-		MovedSound* nativeInstance = (MovedSound*)env->GetLongField(movedSound_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwMovedSoundResourcesDeallocated(env); return; }
+		MovedSound* nativeInstance = getAndCheckNativeInstance<MovedSound>(env, movedSound_object);
 
-//		try
+		try
 		{
 			nativeInstance->rewind(position);
 		}
-/*		catch (const MovedSound::Error& err)
+		catch (const SoundSource::Error& err)
 		{
-			throwJavaMovedSoundError(env, err);
-		}*/
+			catchSoundSourceErrors(env, err);
+		}
+
 	}
 
 	JNIEXPORT jdouble JNICALL Java_vam_MovedSound_getPlayhead(JNIEnv * env, jobject movedSound_object)
 	{
-		jclass movedSound_class = env->GetObjectClass(movedSound_object);
-		jfieldID nativeInstance_field = env->GetFieldID(movedSound_class, "nativeInstance", "J");
-		MovedSound* nativeInstance = (MovedSound*)env->GetLongField(movedSound_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwMovedSoundResourcesDeallocated(env); return 0; }
+		MovedSound* nativeInstance = getAndCheckNativeInstance<MovedSound>(env, movedSound_object);
 
-		return nativeInstance->getPlayhead();
+		try
+		{
+			return nativeInstance->getPlayhead();
+		}
+		catch (const SoundSource::Error& err)
+		{
+			catchSoundSourceErrors(env, err);
+			return 0;
+		}
 	}
 
 	JNIEXPORT jdouble JNICALL Java_vam_MovedSound_getStartTime(JNIEnv * env, jobject movedSound_object)
 	{
-		jclass movedSound_class = env->GetObjectClass(movedSound_object);
-		jfieldID nativeInstance_field = env->GetFieldID(movedSound_class, "nativeInstance", "J");
-		MovedSound* nativeInstance = (MovedSound*)env->GetLongField(movedSound_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwMovedSoundResourcesDeallocated(env); return 0; }
+		MovedSound* nativeInstance = getAndCheckNativeInstance<MovedSound>(env, movedSound_object);
 
-		return nativeInstance->getStartTime();
+		try
+		{
+			return nativeInstance->getStartTime();
+		}
+		catch (const SoundSource::Error& err)
+		{
+			catchSoundSourceErrors(env, err);
+			return 0;
+		}
 	}
 
 	JNIEXPORT jdouble JNICALL Java_vam_MovedSound_getEndTime(JNIEnv * env, jobject movedSound_object)
 	{
-		jclass movedSound_class = env->GetObjectClass(movedSound_object);
-		jfieldID nativeInstance_field = env->GetFieldID(movedSound_class, "nativeInstance", "J");
-		MovedSound* nativeInstance = (MovedSound*)env->GetLongField(movedSound_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwMovedSoundResourcesDeallocated(env); return 0; }
+		MovedSound* nativeInstance = getAndCheckNativeInstance<MovedSound>(env, movedSound_object);
 
-		return nativeInstance->getEndTime();
+		try
+		{
+			return nativeInstance->getEndTime();
+		}
+		catch (const SoundSource::Error& err)
+		{
+			catchSoundSourceErrors(env, err);
+			return 0;
+		}
 	}
 
 	JNIEXPORT jint JNICALL Java_vam_MovedSound_getChannels(JNIEnv * env, jobject movedSound_object)
 	{
-		jclass movedSound_class = env->GetObjectClass(movedSound_object);
-		jfieldID nativeInstance_field = env->GetFieldID(movedSound_class, "nativeInstance", "J");
-		MovedSound* nativeInstance = (MovedSound*)env->GetLongField(movedSound_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwMovedSoundResourcesDeallocated(env); return 0; }
+		MovedSound* nativeInstance = getAndCheckNativeInstance<MovedSound>(env, movedSound_object);
 
-		return nativeInstance->getChannels();
+		try
+		{
+			return nativeInstance->getChannels();
+		}
+		catch (const SoundSource::Error& err)
+		{
+			catchSoundSourceErrors(env, err);
+			return 0;
+		}
 	}
 
 	JNIEXPORT jint JNICALL Java_vam_MovedSound_getRate(JNIEnv * env, jobject movedSound_object)
 	{
-		jclass movedSound_class = env->GetObjectClass(movedSound_object);
-		jfieldID nativeInstance_field = env->GetFieldID(movedSound_class, "nativeInstance", "J");
-		MovedSound* nativeInstance = (MovedSound*)env->GetLongField(movedSound_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwMovedSoundResourcesDeallocated(env); return 0; }
+		MovedSound* nativeInstance = getAndCheckNativeInstance<MovedSound>(env, movedSound_object);
 
-		return nativeInstance->getRate();
+		try
+		{
+			return nativeInstance->getRate();
+		}
+		catch (const SoundSource::Error& err)
+		{
+			catchSoundSourceErrors(env, err);
+			return 0;
+		}
 	}
 
 
 	JNIEXPORT void JNICALL Java_vam_MovedSound_setSoundNative(JNIEnv * env, jobject movedSound_object, jobject soundSource_object)
 	{
-		// Getting the MovedSound native object
-		jclass movedSound_class = env->GetObjectClass(movedSound_object);
-		jfieldID movedSound_nativeInstance_field = env->GetFieldID(movedSound_class, "nativeInstance", "J");
-		MovedSound* movedSound_nativeInstance = (MovedSound*)env->GetLongField(movedSound_object, movedSound_nativeInstance_field);
-		if (movedSound_nativeInstance == NULL) { throwMovedSoundResourcesDeallocated(env); return; }
+		// Getting the MixedSounds native object
+		MovedSound* movedSound_nativeInstance = getAndCheckNativeInstance<MovedSound>(env, movedSound_object);
 
 		// Getting the SoundSource native object
-		jclass soundSource_class = env->GetObjectClass(soundSource_object);
-		jfieldID soundSource_nativeInstance_field = env->GetFieldID(movedSound_class, "nativeInstance", "J");
-		SoundSource* soundSource_nativeInstance = (SoundSource*)env->GetLongField(soundSource_object, soundSource_nativeInstance_field);
-		if (soundSource_nativeInstance == NULL) { throwSoundSourceResourcesDeallocated(env); return; }
+		SoundSource* soundSource_nativeInstance = getAndCheckNativeInstance<SoundSource>(env, soundSource_object);
 
 		// Connecting
 		movedSound_nativeInstance->setSound(*soundSource_nativeInstance);
@@ -152,10 +157,8 @@ extern "C"
 
 	JNIEXPORT void JNICALL Java_vam_MovedSound_setDelay(JNIEnv * env, jobject movedSound_object, jdouble value)
 	{
-		jclass movedSound_class = env->GetObjectClass(movedSound_object);
-		jfieldID nativeInstance_field = env->GetFieldID(movedSound_class, "nativeInstance", "J");
-		MovedSound* nativeInstance = (MovedSound*)env->GetLongField(movedSound_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwMovedSoundResourcesDeallocated(env); return; }
+		// Getting the MixedSounds native object
+		MovedSound* nativeInstance = getAndCheckNativeInstance<MovedSound>(env, movedSound_object);
 
 		nativeInstance->setDelay(value);
 	}

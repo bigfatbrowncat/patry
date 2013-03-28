@@ -46,22 +46,17 @@ namespace vam
 			break;
 
 		default:
+			errorType = etStrangeError;
 			break;
 		}
 
-		throw Error(errorType, code, caller);
-	}
-
-	void VorbisFileReader::throwStrangeError(int code, wstring caller)
-	{
-		state = sError;
-		throw Error(etStrangeError, code, caller);
+		throw Error(errorType, caller);
 	}
 
 	void VorbisFileReader::throwError(ErrorType type, wstring caller)
 	{
 		state = sError;
-		throw Error(type, 0, caller);
+		throw Error(type, caller);
 	}
 
 	void VorbisFileReader::fillBuffer()

@@ -14,9 +14,7 @@ public class VorbisFileReader extends SoundSource
 		etBadLink(7),
 		etInvalidArgument(8),
 		etStrangeError(9),
-		etCantSeek(10),
-		
-		resourcesDeallocated(100);
+		etCantSeek(10);
 		
 		@SuppressWarnings("unused")	// used in native code
 		private int value;
@@ -37,7 +35,6 @@ public class VorbisFileReader extends SoundSource
 			case 8: return etInvalidArgument;
 			case 9: return etStrangeError;
 			case 10: return etCantSeek;
-			case 100: return resourcesDeallocated;
 			default:
 				throw new RuntimeException("Strange value");
 			}
@@ -121,17 +118,17 @@ public class VorbisFileReader extends SoundSource
 	@Override
 	public native void rewind(double position) throws Error;
 	@Override
-	public native double getPlayhead();
+	public native double getPlayhead() throws Error;
 	@Override
-	public native double getStartTime();
+	public native double getStartTime() throws Error;
 	@Override
-	public native double getEndTime();
+	public native double getEndTime() throws Error;
 	@Override
-	public native int getChannels();
+	public native int getChannels() throws Error;
 	@Override
-	public native int getRate();
+	public native int getRate() throws Error;
 
-	public native int getBitsPerSecond();
-	public native String getVendor();
-	public native String[] getComments();
+	public native int getBitsPerSecond() throws Error;
+	public native String getVendor() throws Error;
+	public native String[] getComments() throws Error;
 }

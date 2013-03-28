@@ -47,12 +47,13 @@ public abstract class SoundSource
 	}
 	
 	public abstract float[] readSample() throws Error;
-	public abstract int getChannels();
 	public abstract void rewind(double position) throws Error;
-	public abstract double getPlayhead();
-	public abstract double getStartTime();
-	public abstract double getEndTime();
-	public abstract int getRate();
+
+	public abstract int getChannels() throws Error;
+	public abstract double getPlayhead() throws Error;
+	public abstract double getStartTime() throws Error;
+	public abstract double getEndTime() throws Error;
+	public abstract int getRate() throws Error;
 	
 	public native State getState();
 

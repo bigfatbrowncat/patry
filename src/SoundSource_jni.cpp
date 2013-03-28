@@ -21,12 +21,9 @@ using namespace vam;
 extern "C"
 {
 
-	JNIEXPORT jobject JNICALL Java_vam_SoundSource_getState(JNIEnv * env, jobject vorbisFileReader_object)
+	JNIEXPORT jobject JNICALL Java_vam_SoundSource_getState(JNIEnv * env, jobject soundSource_object)
 	{
-		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
-		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
-		SoundSource* nativeInstance = (SoundSource*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwSoundSourceResourcesDeallocated(env); return NULL; }
+		SoundSource* nativeInstance = getAndCheckNativeInstance<SoundSource>(env, soundSource_object);
 
 		jclass state_class = env->FindClass("vam/SoundSource$State");
 		jmethodID fromValue_method = env->GetMethodID(state_class, "fromValue", "(I)Lvam/SoundSource$State;");

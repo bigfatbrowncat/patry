@@ -38,12 +38,6 @@ void throwJavaPortAudioPlayerError(JNIEnv * env, const PortAudioPlayer::Error& e
 	env->Throw(error_exception);
 }
 
-void throwPortAudioPlayerResourcesDeallocated(JNIEnv * env)
-{
-	jclass resourcesDeallocatedException_class = env->FindClass("vam/ResourcesDeallocatedException");
-	env->ThrowNew(resourcesDeallocatedException_class, "Resources of the PortAudioPlayer object are deallocated");
-}
-
 extern "C"
 {
 
@@ -75,16 +69,10 @@ extern "C"
 	JNIEXPORT void JNICALL Java_vam_PortAudioPlayer_setNativeSoundSource(JNIEnv * env, jobject portAudioPlayer_object, jobject soundSource_object)
 	{
 		// Getting the PortAudio native object
-		jclass portAudioPlayer_class = env->GetObjectClass(portAudioPlayer_object);
-		jfieldID portAudioPlayer_nativeInstance_field = env->GetFieldID(portAudioPlayer_class, "nativeInstance", "J");
-		PortAudioPlayer* portAudioPlayer_nativeInstance = (PortAudioPlayer*)env->GetLongField(portAudioPlayer_object, portAudioPlayer_nativeInstance_field);
-		if (portAudioPlayer_nativeInstance == NULL) { throwPortAudioPlayerResourcesDeallocated(env); return; }
+		PortAudioPlayer* portAudioPlayer_nativeInstance = getAndCheckNativeInstance<PortAudioPlayer>(env, portAudioPlayer_object);
 
 		// Getting the SoundSource native object
-		jclass soundSource_class = env->GetObjectClass(soundSource_object);
-		jfieldID soundSource_nativeInstance_field = env->GetFieldID(portAudioPlayer_class, "nativeInstance", "J");
-		SoundSource* soundSource_nativeInstance = (SoundSource*)env->GetLongField(soundSource_object, soundSource_nativeInstance_field);
-		if (soundSource_nativeInstance == NULL) { throwSoundSourceResourcesDeallocated(env); return; }
+		SoundSource* soundSource_nativeInstance = getAndCheckNativeInstance<SoundSource>(env, soundSource_object);
 
 		// Connecting
 		portAudioPlayer_nativeInstance->setSoundSource(*soundSource_nativeInstance);
@@ -93,10 +81,7 @@ extern "C"
 	JNIEXPORT void JNICALL Java_vam_PortAudioPlayer_play(JNIEnv * env, jobject portAudioPlayer_object)
 	{
 		// Getting the PortAudio native object
-		jclass portAudioPlayer_class = env->GetObjectClass(portAudioPlayer_object);
-		jfieldID portAudioPlayer_nativeInstance_field = env->GetFieldID(portAudioPlayer_class, "nativeInstance", "J");
-		PortAudioPlayer* portAudioPlayer_nativeInstance = (PortAudioPlayer*)env->GetLongField(portAudioPlayer_object, portAudioPlayer_nativeInstance_field);
-		if (portAudioPlayer_nativeInstance == NULL) { throwPortAudioPlayerResourcesDeallocated(env); return; }
+		PortAudioPlayer* portAudioPlayer_nativeInstance = getAndCheckNativeInstance<PortAudioPlayer>(env, portAudioPlayer_object);
 
 		try
 		{
@@ -112,14 +97,11 @@ extern "C"
 	JNIEXPORT void JNICALL Java_vam_PortAudioPlayer_stop(JNIEnv * env, jobject portAudioPlayer_object)
 	{
 		// Getting the PortAudio native object
-		jclass portAudioPlayer_class = env->GetObjectClass(portAudioPlayer_object);
-		jfieldID portAudioPlayer_nativeInstance_field = env->GetFieldID(portAudioPlayer_class, "nativeInstance", "J");
-		PortAudioPlayer* portAudioPlayer_nativeInstance = (PortAudioPlayer*)env->GetLongField(portAudioPlayer_object, portAudioPlayer_nativeInstance_field);
-		if (portAudioPlayer_nativeInstance == NULL) { throwPortAudioPlayerResourcesDeallocated(env); return; }
+		PortAudioPlayer* nativeInstance = getAndCheckNativeInstance<PortAudioPlayer>(env, portAudioPlayer_object);
 
 		try
 		{
-			portAudioPlayer_nativeInstance->stop();
+			nativeInstance->stop();
 		}
 		catch (const PortAudioPlayer::Error& err)
 		{

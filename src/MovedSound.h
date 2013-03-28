@@ -15,6 +15,27 @@ namespace vam
 
 	class MovedSound: public SoundSource
 	{
+	public:
+		enum ErrorType
+		{
+			etSoundNotSet			= 0
+		};
+
+		class Error
+		{
+			friend class MixedSounds;
+		private:
+			ErrorType type;
+			wstring caller;
+		protected:
+			Error(ErrorType type, wstring caller) : type(type), caller(caller)
+			{
+			}
+		public:
+			ErrorType getType() const { return type; }
+			wstring getCaller() const { return caller; }
+		};
+
 	private:
 		float** second_buffer;		// This buffer is ours
 		double second_buffer_start_time;

@@ -2,6 +2,44 @@ package vam;
 
 public class MovedSound extends SoundSource
 {
+	public enum ErrorType
+	{
+		etSoundNotSet(0);
+		
+		@SuppressWarnings("unused")	// used in native code
+		private int value;
+		
+		ErrorType(int value) { this.value = value; }
+		static ErrorType fromValue(int i)
+		{
+			switch (i)
+			{
+			case 0: return etSoundNotSet;
+			default:
+				throw new RuntimeException("Strange value");
+			}
+		}
+	}
+	
+	public static class Error extends SoundSource.Error
+	{
+		private static final long serialVersionUID = -850272977445772333L;
+		private ErrorType type;
+		private int code;
+		private String caller;
+		protected Error(ErrorType type, int code, String caller)
+		{
+			super("error type " + type.toString() + (code != 0 ? " (code is " + code + ")" : "") + ", caller is " + caller);
+			this.type = type;
+			this.code = code;
+			this.caller = caller;
+		}
+		public ErrorType getType() { return type; }
+		public int getCode() { return code; }
+		public String getCaller() { return caller; }		
+	}
+	
+	
 	private SoundSource sound;
 	
 	private native static long createNativeInstance();
@@ -41,31 +79,24 @@ public class MovedSound extends SoundSource
 		}
 	}
 		
-	
 	@Override
 	public native float[] readSample() throws Error;
-
-	@Override
-	public native int getChannels();
-
 	@Override
 	public native void rewind(double position) throws Error;
-
 	@Override
-	public native double getPlayhead();
-	
+	public native double getPlayhead() throws Error;
 	@Override
-	public native double getStartTime();
-
+	public native double getStartTime() throws Error;
 	@Override
-	public native double getEndTime();
-
+	public native double getEndTime() throws Error;
 	@Override
-	public native int getRate();
+	public native int getChannels() throws Error;
+	@Override
+	public native int getRate() throws Error;
 
-	private native void setSoundNative(SoundSource sound);
+	private native void setSoundNative(SoundSource sound) throws Error;
 
-	public void setSound(SoundSource sound)
+	public void setSound(SoundSource sound) throws Error
 	{
 		setSoundNative(sound);
 		this.sound = sound; 

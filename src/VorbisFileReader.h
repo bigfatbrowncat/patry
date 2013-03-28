@@ -38,21 +38,23 @@ namespace vam
 			etCantSeek = 10
 		};
 
-		class Error
+		class Error : public SoundSource::Error
 		{
 			friend class VorbisFileReader;
 		private:
 			ErrorType type;
-			int code;
 			wstring caller;
 		protected:
-			Error(ErrorType type, int code, wstring caller) : type(type), code(code), caller(caller)
+			Error(ErrorType type, wstring caller) :
+				type(type),
+				caller(caller),
+				SoundSource::Error(L"VorbisFileReader::Error", (int)type, caller)
 			{
+
 			}
 		public:
 			ErrorType getType() const { return type; }
-			int getCode() const { return code; }
-			wstring getCaller() const { return caller; }
+			const wstring& getCaller() const { return caller; }
 		};
 
 	private:
@@ -80,7 +82,6 @@ namespace vam
 
 	private:
 		void throwVorbisError(int code, wstring caller);
-		void throwStrangeError(int code, wstring caller);
 		void throwError(ErrorType type, wstring caller);
 
 		void fillBuffer();

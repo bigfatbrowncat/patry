@@ -1,6 +1,11 @@
 #ifndef SOUNDSOURCE_H_
 #define SOUNDSOURCE_H_
 
+#include <string>
+#include <sstream>
+
+using namespace std;
+
 #define MAX_CHANNELS			2
 
 namespace vam
@@ -12,6 +17,29 @@ namespace vam
 		{
 			sReady = 0,
 			sError = 1
+		};
+
+		class Error
+		{
+		private:
+			wstring message;
+
+		protected:
+			void setMessage(const wstring& value) { message = value; }
+
+		public:
+			Error() {}
+			Error(const wstring& message)
+			{
+				this->message = message;
+			}
+			Error(const wstring& errorClass, int type, const wstring& caller)
+			{
+				wostringstream oss;
+				oss << errorClass << L" occured with type " << type << L" and caller \"" << caller << L"\"";
+				setMessage(oss.str());
+			}
+			virtual ~Error() {}
 		};
 
 	protected:

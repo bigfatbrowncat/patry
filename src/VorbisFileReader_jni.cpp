@@ -12,49 +12,6 @@
 using namespace vam;
 using namespace std;
 
-jobject errorType(JNIEnv * env, VorbisFileReader::ErrorType errorType)
-{
-	jclass vorbisFileReaderError_class = env->FindClass("vam/VorbisFileReader$ErrorType");
-	jmethodID fromValue_method = env->GetStaticMethodID(vorbisFileReaderError_class, "fromValue", "(I)Lvam/VorbisFileReader$ErrorType;");
-
-	int value = (int)errorType;
-
-	return env->CallStaticObjectMethod(vorbisFileReaderError_class, fromValue_method, value);
-}
-
-void throwJavaVorbisFileReaderError(JNIEnv * env, const VorbisFileReader::Error& err)
-{
-	jclass error_class = env->FindClass("vam/VorbisFileReader$Error");
-	jmethodID error_constructor = env->GetMethodID(
-			error_class, "<init>", "(Lvam/VorbisFileReader$ErrorType;ILjava/lang/String;)V");
-
-	jobject errorType_object = errorType(env, err.getType());
-
-#if __SIZEOF_WCHAR_T__ == 2
-	// (It's likely mingw32) Here we have equality between wchar_t and jchar
-	const jchar* caller_jchar = (const jchar*)err.getCaller().c_str();
-#else
-	// Converting wchar_t string to jchar string
-	jchar caller_jchar[err.getCaller().length()];
-	const wchar_t* caller_wchar = err.getCaller().c_str();
-	for (int i = 0; i < err.getCaller().length(); i++)
-	{
-		caller_jchar[i] = (jchar)caller_wchar[i];
-	}
-#endif
-
-	jstring caller_string = env->NewString(caller_jchar, err.getCaller().length());
-
-	jthrowable error_exception = (jthrowable)env->NewObject(error_class, error_constructor, errorType_object, err.getCode(), caller_string);
-	env->Throw(error_exception);
-}
-
-void throwVorbisFileReaderResourcesDeallocated(JNIEnv * env)
-{
-	jclass resourcesDeallocatedException_class = env->FindClass("vam/ResourcesDeallocatedException");
-	env->ThrowNew(resourcesDeallocatedException_class, "Resources of the VorbisFileReader object are deallocated");
-}
-
 extern "C"
 {
 
@@ -67,8 +24,6 @@ extern "C"
 		const char* fileName = (char*)env->GetStringUTFChars(file_name, NULL);
 #endif
 
-		//jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
-
 		VorbisFileReader* nativeInstance = NULL;
 		try
 		{
@@ -78,9 +33,9 @@ extern "C"
 			nativeInstance = new VorbisFileReader(string(fileName), buffer_size_request);
 #endif
 		}
-		catch (const VorbisFileReader::Error& err)
+		catch (const SoundSource::Error& err)
 		{
-			throwJavaVorbisFileReaderError(env, err);
+			catchSoundSourceErrors(env, err);
 		}
 
 #ifdef __MINGW32__
@@ -93,19 +48,14 @@ extern "C"
 
 	JNIEXPORT void JNICALL Java_vam_VorbisFileReader_destroyNativeInstance(JNIEnv * env, jobject vorbisFileReader_object)
 	{
-		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
-		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
-		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
+		VorbisFileReader* nativeInstance = getAndCheckNativeInstance<VorbisFileReader>(env, vorbisFileReader_object);
 
 		if (nativeInstance != NULL)	delete nativeInstance;
 	}
 
 	JNIEXPORT jfloatArray JNICALL Java_vam_VorbisFileReader_readSample(JNIEnv * env, jobject vorbisFileReader_object)
 	{
-		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
-		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
-		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwVorbisFileReaderResourcesDeallocated(env); return NULL; }
+		VorbisFileReader* nativeInstance = getAndCheckNativeInstance<VorbisFileReader>(env, vorbisFileReader_object);
 
 		try
 		{
@@ -116,96 +66,73 @@ extern "C"
 			env->SetFloatArrayRegion(sample_array, 0, channels, sample);
 			return sample_array;
 		}
-		catch (const VorbisFileReader::Error& err)
+		catch (const SoundSource::Error& err)
 		{
-			throwJavaVorbisFileReaderError(env, err);
+			catchSoundSourceErrors(env, err);
+			return NULL;
 		}
-		return NULL;
 	}
 
 	JNIEXPORT void JNICALL Java_vam_VorbisFileReader_rewind(JNIEnv * env, jobject vorbisFileReader_object, jdouble position)
 	{
-		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
-		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
-		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwVorbisFileReaderResourcesDeallocated(env); return; }
+		VorbisFileReader* nativeInstance = getAndCheckNativeInstance<VorbisFileReader>(env, vorbisFileReader_object);
 
 		try
 		{
 			nativeInstance->rewind(position);
 		}
-		catch (const VorbisFileReader::Error& err)
+		catch (const SoundSource::Error& err)
 		{
-			throwJavaVorbisFileReaderError(env, err);
+			catchSoundSourceErrors(env, err);
 		}
+
 	}
 
 	JNIEXPORT jdouble JNICALL Java_vam_VorbisFileReader_getPlayhead(JNIEnv * env, jobject vorbisFileReader_object)
 	{
-		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
-		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
-		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwVorbisFileReaderResourcesDeallocated(env); return 0; }
+		VorbisFileReader* nativeInstance = getAndCheckNativeInstance<VorbisFileReader>(env, vorbisFileReader_object);
 
 		return nativeInstance->getPlayhead();
 	}
 
 	JNIEXPORT jdouble JNICALL Java_vam_VorbisFileReader_getStartTime(JNIEnv * env, jobject vorbisFileReader_object)
 	{
-		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
-		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
-		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwVorbisFileReaderResourcesDeallocated(env); return 0; }
+		VorbisFileReader* nativeInstance = getAndCheckNativeInstance<VorbisFileReader>(env, vorbisFileReader_object);
 
 		return nativeInstance->getStartTime();
 	}
 
 	JNIEXPORT jdouble JNICALL Java_vam_VorbisFileReader_getEndTime(JNIEnv * env, jobject vorbisFileReader_object)
 	{
-		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
-		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
-		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwVorbisFileReaderResourcesDeallocated(env); return 0; }
+		VorbisFileReader* nativeInstance = getAndCheckNativeInstance<VorbisFileReader>(env, vorbisFileReader_object);
 
 		return nativeInstance->getEndTime();
 	}
 
 	JNIEXPORT jint JNICALL Java_vam_VorbisFileReader_getChannels(JNIEnv * env, jobject vorbisFileReader_object)
 	{
-		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
-		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
-		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwVorbisFileReaderResourcesDeallocated(env); return 0; }
+		VorbisFileReader* nativeInstance = getAndCheckNativeInstance<VorbisFileReader>(env, vorbisFileReader_object);
 
 		return nativeInstance->getChannels();
 	}
 
 	JNIEXPORT jint JNICALL Java_vam_VorbisFileReader_getRate(JNIEnv * env, jobject vorbisFileReader_object)
 	{
-		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
-		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
-		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwVorbisFileReaderResourcesDeallocated(env); return 0; }
+		VorbisFileReader* nativeInstance = getAndCheckNativeInstance<VorbisFileReader>(env, vorbisFileReader_object);
 
 		return nativeInstance->getRate();
 	}
 
 	JNIEXPORT jint JNICALL Java_vam_VorbisFileReader_getBitsPerSecond(JNIEnv * env, jobject vorbisFileReader_object)
 	{
-		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
-		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
-		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwVorbisFileReaderResourcesDeallocated(env); return 0; }
+		VorbisFileReader* nativeInstance = getAndCheckNativeInstance<VorbisFileReader>(env, vorbisFileReader_object);
 
 		return nativeInstance->getBitsPerSecond();
 	}
 
 	JNIEXPORT jstring JNICALL Java_vam_VorbisFileReader_getVendor(JNIEnv * env, jobject vorbisFileReader_object)
 	{
-		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
-		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
-		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwVorbisFileReaderResourcesDeallocated(env); return 0; }
+		VorbisFileReader* nativeInstance = getAndCheckNativeInstance<VorbisFileReader>(env, vorbisFileReader_object);
 
 		string s = nativeInstance->getVendor();
 		jstring res = env->NewStringUTF(s.c_str());
@@ -215,10 +142,7 @@ extern "C"
 
 	JNIEXPORT jobjectArray JNICALL Java_vam_VorbisFileReader_getComments(JNIEnv * env, jobject vorbisFileReader_object)
 	{
-		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
-		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
-		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
-		if (nativeInstance == NULL) { throwVorbisFileReaderResourcesDeallocated(env); return 0; }
+		VorbisFileReader* nativeInstance = getAndCheckNativeInstance<VorbisFileReader>(env, vorbisFileReader_object);
 
 		vector<string> ss = nativeInstance->getComments();
 
