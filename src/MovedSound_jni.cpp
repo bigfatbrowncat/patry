@@ -90,14 +90,24 @@ extern "C"
 		return nativeInstance->getPlayhead();
 	}
 
-	JNIEXPORT jdouble JNICALL Java_vam_MovedSound_getLength(JNIEnv * env, jobject movedSound_object)
+	JNIEXPORT jdouble JNICALL Java_vam_MovedSound_getStartTime(JNIEnv * env, jobject movedSound_object)
 	{
 		jclass movedSound_class = env->GetObjectClass(movedSound_object);
 		jfieldID nativeInstance_field = env->GetFieldID(movedSound_class, "nativeInstance", "J");
 		MovedSound* nativeInstance = (MovedSound*)env->GetLongField(movedSound_object, nativeInstance_field);
 		if (nativeInstance == NULL) { throwMovedSoundResourcesDeallocated(env); return 0; }
 
-		return nativeInstance->getLength();
+		return nativeInstance->getStartTime();
+	}
+
+	JNIEXPORT jdouble JNICALL Java_vam_MovedSound_getEndTime(JNIEnv * env, jobject movedSound_object)
+	{
+		jclass movedSound_class = env->GetObjectClass(movedSound_object);
+		jfieldID nativeInstance_field = env->GetFieldID(movedSound_class, "nativeInstance", "J");
+		MovedSound* nativeInstance = (MovedSound*)env->GetLongField(movedSound_object, nativeInstance_field);
+		if (nativeInstance == NULL) { throwMovedSoundResourcesDeallocated(env); return 0; }
+
+		return nativeInstance->getEndTime();
 	}
 
 	JNIEXPORT jint JNICALL Java_vam_MovedSound_getChannels(JNIEnv * env, jobject movedSound_object)

@@ -150,14 +150,24 @@ extern "C"
 		return nativeInstance->getPlayhead();
 	}
 
-	JNIEXPORT jdouble JNICALL Java_vam_VorbisFileReader_getLength(JNIEnv * env, jobject vorbisFileReader_object)
+	JNIEXPORT jdouble JNICALL Java_vam_VorbisFileReader_getStartTime(JNIEnv * env, jobject vorbisFileReader_object)
 	{
 		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
 		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
 		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
 		if (nativeInstance == NULL) { throwVorbisFileReaderResourcesDeallocated(env); return 0; }
 
-		return nativeInstance->getLength();
+		return nativeInstance->getStartTime();
+	}
+
+	JNIEXPORT jdouble JNICALL Java_vam_VorbisFileReader_getEndTime(JNIEnv * env, jobject vorbisFileReader_object)
+	{
+		jclass vorbisFileReader_class = env->GetObjectClass(vorbisFileReader_object);
+		jfieldID nativeInstance_field = env->GetFieldID(vorbisFileReader_class, "nativeInstance", "J");
+		VorbisFileReader* nativeInstance = (VorbisFileReader*)env->GetLongField(vorbisFileReader_object, nativeInstance_field);
+		if (nativeInstance == NULL) { throwVorbisFileReaderResourcesDeallocated(env); return 0; }
+
+		return nativeInstance->getEndTime();
 	}
 
 	JNIEXPORT jint JNICALL Java_vam_VorbisFileReader_getChannels(JNIEnv * env, jobject vorbisFileReader_object)

@@ -54,7 +54,8 @@ public abstract class SoundSource
 	public abstract int getChannels();
 	public abstract void rewind(double position) throws Error;
 	public abstract double getPlayhead();
-	public abstract double getLength();
+	public abstract double getStartTime();
+	public abstract double getEndTime();
 	public abstract int getRate();
 	
 	public native State getState();

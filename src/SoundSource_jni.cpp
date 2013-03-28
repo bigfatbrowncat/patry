@@ -6,6 +6,7 @@
  */
 
 // System includes
+#include <stddef.h>
 #include <jni.h>
 
 // JNI includes

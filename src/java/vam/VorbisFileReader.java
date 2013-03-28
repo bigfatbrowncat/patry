@@ -123,7 +123,9 @@ public class VorbisFileReader extends SoundSource
 	@Override
 	public native double getPlayhead();
 	@Override
-	public native double getLength();
+	public native double getStartTime();
+	@Override
+	public native double getEndTime();
 	@Override
 	public native int getChannels();
 	@Override

@@ -121,6 +121,7 @@ namespace vam
 	void MovedSound::rewind(double position)
 	{
 		playhead = position;
+		fillBuffer();
 	}
 
 	double MovedSound::getPlayhead() const
@@ -128,10 +129,14 @@ namespace vam
 		return playhead;
 	}
 
-	double MovedSound::getLength() const
+	double MovedSound::getStartTime() const
 	{
-		// TODO Rename "Length" to "End" and add "Begin" (which would be -delay here)
-		return sound->getLength() + delay;
+		return sound->getStartTime() + delay;
+	}
+
+	double MovedSound::getEndTime() const
+	{
+		return sound->getEndTime() + delay;
 	}
 
 	int MovedSound::getRate() const

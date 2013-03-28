@@ -40,7 +40,8 @@ namespace vam
 		virtual int getChannels() const;
 		virtual void rewind(double position);
 		virtual double getPlayhead() const;
-		virtual double getLength() const;
+		virtual double getStartTime() const;
+		virtual double getEndTime() const;
 		virtual int getRate() const;
 
 		void setSound(SoundSource& sound);

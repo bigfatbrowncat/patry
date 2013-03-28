@@ -26,7 +26,8 @@ namespace vam
 		virtual int getChannels() const = 0;
 		virtual void rewind(double position) = 0;
 		virtual double getPlayhead() const = 0;
-		virtual double getLength() const = 0;
+		virtual double getStartTime() const = 0;
+		virtual double getEndTime() const = 0;
 		virtual int getRate() const = 0;
 		virtual State getState() const { return state; }
 

@@ -118,17 +118,30 @@ namespace vam
 		}
 	}
 
-	double MixedSounds::getLength() const
+	double MixedSounds::getStartTime() const
 	{
-		double length_max = 0;
+		double start_min = 0;
 		for (list<SoundSource*>::const_iterator iter = sounds.begin(); iter != sounds.end(); iter++)
 		{
-			if ((*iter)->getLength() > length_max)
+			if ((*iter)->getStartTime() < start_min)
 			{
-				length_max = (*iter)->getLength();
+				start_min = (*iter)->getStartTime();
 			}
 		}
-		return length_max;
+		return start_min;
+	}
+
+	double MixedSounds::getEndTime() const
+	{
+		double end_max = 0;
+		for (list<SoundSource*>::const_iterator iter = sounds.begin(); iter != sounds.end(); iter++)
+		{
+			if ((*iter)->getEndTime() > end_max)
+			{
+				end_max = (*iter)->getEndTime();
+			}
+		}
+		return end_max;
 	}
 
 	int MixedSounds::getRate() const

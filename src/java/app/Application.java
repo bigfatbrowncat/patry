@@ -3,7 +3,6 @@ package app;
 import vam.MixedSounds;
 import vam.MovedSound;
 import vam.PortAudioPlayer;
-import vam.SoundSource;
 import vam.VorbisFileReader;
 
 public class Application
@@ -21,28 +20,39 @@ public class Application
 			return "0" + String.valueOf(value);
 	}
 	
+	private static String timeToString(double time)
+	{
+		double atime = Math.abs(time);
+		int min = (int)(atime) / 60;
+		int sec = (int)(atime) % 60;
+		int sp10 = (int)(atime * 100) % 100;
+		
+		return (time < 0 ? "-" : " ") + twoDig(min) + ":" + twoDig(sec) + "." + twoDig(sp10);
+	}
+	
 	public static void main(String[] args)
 	{
 		try
 		{
 			MixedSounds mis = new MixedSounds();
-			VorbisFileReader vfr1 = new VorbisFileReader("../Drums.ogg", 256);
-			VorbisFileReader vfr2 = new VorbisFileReader("../Bass.ogg", 256);
-			mis.addSound(vfr1);
-			mis.addSound(vfr2);
+			VorbisFileReader vfr_drums = new VorbisFileReader("../Drums.ogg", 256);
+			VorbisFileReader vfr_bass = new VorbisFileReader("../Bass.ogg", 256);
 			
-			MovedSound mos1 = new MovedSound();
-			MovedSound mos2 = new MovedSound();
+			MovedSound mos_drums = new MovedSound();
+			MovedSound mos_bass = new MovedSound();
 
-			mos1.setSound(vfr1);
-			mos2.setSound(vfr2);
+			mos_drums.setSound(vfr_drums);
+			mos_bass.setSound(vfr_bass);
 
-			mos1.setDelay(8);
-			mos2.setDelay(8);
+			mos_drums.setDelay(16);
+			mos_bass.setDelay(16);
 			
-			mis.addSound(mos1);
-			mis.addSound(mos2);
-				
+			mis.addSound(vfr_drums);
+			//mis.addSound(vfr_bass);
+			mis.addSound(mos_drums);
+			mis.addSound(mos_bass);
+			
+			mis.rewind(-1);
 			
 			PortAudioPlayer pap = new PortAudioPlayer(mis.getChannels(), mis.getRate(), 1024);
 
@@ -56,17 +66,7 @@ public class Application
 				{
 					Thread.sleep(10);
 					
-					double playhead = Math.abs(mis.getPlayhead());
-					
-					int min = (int)(playhead) / 60;
-					int sec = (int)(playhead) % 60;
-					int sp10 = (int)(playhead * 100) % 100;
-					
-					int lmin = (int)(mis.getLength()) / 60;
-					int lsec = (int)(mis.getLength()) % 60;
-					int lsp10 = (int)(mis.getLength() * 100) % 100;
-					
-					System.out.print("\rPlaying the file... [ " + (mis.getPlayhead() < 0 ? "-" : " ") + twoDig(min) + ":" + twoDig(sec) + "." + twoDig(sp10) + " / " + twoDig(lmin) + ":" + twoDig(lsec) + "." + twoDig(lsp10) + "  ]");
+					System.out.print("\rPlaying the file... [ " + timeToString(mis.getStartTime()) + " / " + timeToString(mis.getPlayhead()) + " / " + timeToString(mis.getEndTime()) + "  ]");
 					
 				} 
 				catch (InterruptedException e)
@@ -135,9 +135,9 @@ public class Application
 					int sec = (int)(vfr.getPlayhead()) % 60;
 					int sp10 = (int)(vfr.getPlayhead() * 100) % 100;
 					
-					int lmin = (int)(vfr.getLength()) / 60;
-					int lsec = (int)(vfr.getLength()) % 60;
-					int lsp10 = (int)(vfr.getLength() * 100) % 100;
+					int lmin = (int)(vfr.getEndTime()) / 60;
+					int lsec = (int)(vfr.getEndTime()) % 60;
+					int lsp10 = (int)(vfr.getEndTime() * 100) % 100;
 					
 					System.out.print("\rPlaying the file... [ " + twoDig(min) + ":" + twoDig(sec) + "." + twoDig(sp10) + " / " + twoDig(lmin) + ":" + twoDig(lsec) + "." + twoDig(lsp10) + " ]");
 					
@@ -216,9 +216,9 @@ public class Application
 					int sec = (int)(playhead) % 60;
 					int sp10 = (int)(playhead * 100) % 100;
 					
-					int lmin = (int)(ms.getLength()) / 60;
-					int lsec = (int)(ms.getLength()) % 60;
-					int lsp10 = (int)(ms.getLength() * 100) % 100;
+					int lmin = (int)(ms.getEndTime()) / 60;
+					int lsec = (int)(ms.getEndTime()) % 60;
+					int lsp10 = (int)(ms.getEndTime() * 100) % 100;
 					
 					System.out.print("\rPlaying the file... [ " + (ms.getPlayhead() < 0 ? "-" : " ") + twoDig(min) + ":" + twoDig(sec) + "." + twoDig(sp10) + " / " + twoDig(lmin) + ":" + twoDig(lsec) + "." + twoDig(lsp10) + "  ]");
 					

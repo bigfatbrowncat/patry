@@ -98,7 +98,8 @@ namespace vam
 		int getChannels() const { return channels; }
 		void rewind(double position);
 		double getPlayhead() const { return playhead; }
-		double getLength() const { return length; }
+		double getStartTime() const { return 0; }
+		double getEndTime() const { return length; }
 		int getRate() const { return rate; }
 
 		State getState() const { return state; }

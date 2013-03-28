@@ -137,14 +137,24 @@ extern "C"
 		return nativeInstance->getPlayhead();
 	}
 
-	JNIEXPORT jdouble JNICALL Java_vam_MixedSounds_getLength(JNIEnv * env, jobject mixedSounds_object)
+	JNIEXPORT jdouble JNICALL Java_vam_MixedSounds_getStartTime(JNIEnv * env, jobject mixedSounds_object)
 	{
 		jclass mixedSounds_class = env->GetObjectClass(mixedSounds_object);
 		jfieldID nativeInstance_field = env->GetFieldID(mixedSounds_class, "nativeInstance", "J");
 		MixedSounds* nativeInstance = (MixedSounds*)env->GetLongField(mixedSounds_object, nativeInstance_field);
 		if (nativeInstance == NULL) { throwMixedSoundsResourcesDeallocated(env); return 0; }
 
-		return nativeInstance->getLength();
+		return nativeInstance->getStartTime();
+	}
+
+	JNIEXPORT jdouble JNICALL Java_vam_MixedSounds_getEndTime(JNIEnv * env, jobject mixedSounds_object)
+	{
+		jclass mixedSounds_class = env->GetObjectClass(mixedSounds_object);
+		jfieldID nativeInstance_field = env->GetFieldID(mixedSounds_class, "nativeInstance", "J");
+		MixedSounds* nativeInstance = (MixedSounds*)env->GetLongField(mixedSounds_object, nativeInstance_field);
+		if (nativeInstance == NULL) { throwMixedSoundsResourcesDeallocated(env); return 0; }
+
+		return nativeInstance->getEndTime();
 	}
 
 	JNIEXPORT jint JNICALL Java_vam_MixedSounds_getChannels(JNIEnv * env, jobject mixedSounds_object)
