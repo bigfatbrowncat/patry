@@ -137,9 +137,9 @@ template<class T> void throwErrorForClass(JNIEnv * env, const typename T::Error&
 	const jchar* caller_jchar = (const jchar*)error.getCaller().c_str();
 #else
 	// Converting wchar_t string to jchar string
-	jchar caller_jchar[err.getCaller().length()];
-	const wchar_t* caller_wchar = err.getCaller().c_str();
-	for (int i = 0; i < err.getCaller().length(); i++)
+	jchar caller_jchar[error.getCaller().length()];
+	const wchar_t* caller_wchar = error.getCaller().c_str();
+	for (int i = 0; i < error.getCaller().length(); i++)
 	{
 		caller_jchar[i] = (jchar)caller_wchar[i];
 	}
