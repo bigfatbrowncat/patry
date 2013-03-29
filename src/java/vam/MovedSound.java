@@ -25,17 +25,14 @@ public class MovedSound extends SoundSource
 	{
 		private static final long serialVersionUID = -850272977445772333L;
 		private ErrorType type;
-		private int code;
 		private String caller;
-		protected Error(ErrorType type, int code, String caller)
+		protected Error(ErrorType type, String caller)
 		{
-			super("error type " + type.toString() + (code != 0 ? " (code is " + code + ")" : "") + ", caller is " + caller);
+			super("error type " + type.toString() + ", caller is " + caller);
 			this.type = type;
-			this.code = code;
 			this.caller = caller;
 		}
 		public ErrorType getType() { return type; }
-		public int getCode() { return code; }
 		public String getCaller() { return caller; }		
 	}
 	

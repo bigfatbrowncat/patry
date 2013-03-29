@@ -69,10 +69,10 @@ extern "C"
 	JNIEXPORT void JNICALL Java_vam_PortAudioPlayer_setNativeSoundSource(JNIEnv * env, jobject portAudioPlayer_object, jobject soundSource_object)
 	{
 		// Getting the PortAudio native object
-		PortAudioPlayer* portAudioPlayer_nativeInstance = getAndCheckNativeInstance<PortAudioPlayer>(env, portAudioPlayer_object);
+		PortAudioPlayer* portAudioPlayer_nativeInstance = getAndCheckNativeInstance<PortAudioPlayer>(env, portAudioPlayer_object, "PortAudioPlayer");
 
 		// Getting the SoundSource native object
-		SoundSource* soundSource_nativeInstance = getAndCheckNativeInstance<SoundSource>(env, soundSource_object);
+		SoundSource* soundSource_nativeInstance = getAndCheckNativeInstance<SoundSource>(env, soundSource_object, "PortAudioPlayer");
 
 		// Connecting
 		portAudioPlayer_nativeInstance->setSoundSource(*soundSource_nativeInstance);
@@ -81,7 +81,7 @@ extern "C"
 	JNIEXPORT void JNICALL Java_vam_PortAudioPlayer_play(JNIEnv * env, jobject portAudioPlayer_object)
 	{
 		// Getting the PortAudio native object
-		PortAudioPlayer* portAudioPlayer_nativeInstance = getAndCheckNativeInstance<PortAudioPlayer>(env, portAudioPlayer_object);
+		PortAudioPlayer* portAudioPlayer_nativeInstance = getAndCheckNativeInstance<PortAudioPlayer>(env, portAudioPlayer_object, "PortAudioPlayer");
 
 		try
 		{
@@ -97,7 +97,7 @@ extern "C"
 	JNIEXPORT void JNICALL Java_vam_PortAudioPlayer_stop(JNIEnv * env, jobject portAudioPlayer_object)
 	{
 		// Getting the PortAudio native object
-		PortAudioPlayer* nativeInstance = getAndCheckNativeInstance<PortAudioPlayer>(env, portAudioPlayer_object);
+		PortAudioPlayer* nativeInstance = getAndCheckNativeInstance<PortAudioPlayer>(env, portAudioPlayer_object, "PortAudioPlayer");
 
 		try
 		{

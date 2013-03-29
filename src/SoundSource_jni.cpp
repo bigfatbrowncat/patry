@@ -23,7 +23,7 @@ extern "C"
 
 	JNIEXPORT jobject JNICALL Java_vam_SoundSource_getState(JNIEnv * env, jobject soundSource_object)
 	{
-		SoundSource* nativeInstance = getAndCheckNativeInstance<SoundSource>(env, soundSource_object);
+		SoundSource* nativeInstance = getAndCheckNativeInstance<SoundSource>(env, soundSource_object, "SoundSource");
 
 		jclass state_class = env->FindClass("vam/SoundSource$State");
 		jmethodID fromValue_method = env->GetMethodID(state_class, "fromValue", "(I)Lvam/SoundSource$State;");

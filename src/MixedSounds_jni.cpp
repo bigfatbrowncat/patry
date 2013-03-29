@@ -37,14 +37,14 @@ extern "C"
 
 	JNIEXPORT void JNICALL Java_vam_MixedSounds_destroyNativeInstance(JNIEnv * env, jobject mixedSounds_object)
 	{
-		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object);
+		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object, "MixedSounds");
 
 		if (nativeInstance != NULL)	delete nativeInstance;
 	}
 
 	JNIEXPORT jfloatArray JNICALL Java_vam_MixedSounds_readSample(JNIEnv * env, jobject mixedSounds_object)
 	{
-		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object);
+		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object, "MixedSounds");
 
 		try
 		{
@@ -65,7 +65,7 @@ extern "C"
 
 	JNIEXPORT void JNICALL Java_vam_MixedSounds_rewind(JNIEnv * env, jobject mixedSounds_object, jdouble position)
 	{
-		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object);
+		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object, "MixedSounds");
 
 		try
 		{
@@ -79,35 +79,35 @@ extern "C"
 
 	JNIEXPORT jdouble JNICALL Java_vam_MixedSounds_getPlayhead(JNIEnv * env, jobject mixedSounds_object)
 	{
-		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object);
+		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object, "MixedSounds");
 
 		return nativeInstance->getPlayhead();
 	}
 
 	JNIEXPORT jdouble JNICALL Java_vam_MixedSounds_getStartTime(JNIEnv * env, jobject mixedSounds_object)
 	{
-		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object);
+		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object, "MixedSounds");
 
 		return nativeInstance->getStartTime();
 	}
 
 	JNIEXPORT jdouble JNICALL Java_vam_MixedSounds_getEndTime(JNIEnv * env, jobject mixedSounds_object)
 	{
-		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object);
+		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object, "MixedSounds");
 
 		return nativeInstance->getEndTime();
 	}
 
 	JNIEXPORT jint JNICALL Java_vam_MixedSounds_getChannels(JNIEnv * env, jobject mixedSounds_object)
 	{
-		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object);
+		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object, "MixedSounds");
 
 		return nativeInstance->getChannels();
 	}
 
 	JNIEXPORT jint JNICALL Java_vam_MixedSounds_getRate(JNIEnv * env, jobject mixedSounds_object)
 	{
-		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object);
+		MixedSounds* nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object, "MixedSounds");
 
 		return nativeInstance->getRate();
 	}
@@ -115,10 +115,10 @@ extern "C"
 	JNIEXPORT void JNICALL Java_vam_MixedSounds_addSoundNative(JNIEnv * env, jobject mixedSounds_object, jobject soundSource_object)
 	{
 		// Getting the MixedSounds native object
-		MixedSounds* mixedSounds_nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object);
+		MixedSounds* mixedSounds_nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object, "MixedSounds");
 
 		// Getting the SoundSource native object
-		SoundSource* soundSource_nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, soundSource_object);
+		SoundSource* soundSource_nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, soundSource_object, "MixedSounds");
 
 		// Connecting
 		mixedSounds_nativeInstance->addSound(*soundSource_nativeInstance);
@@ -127,10 +127,10 @@ extern "C"
 	JNIEXPORT void JNICALL Java_vam_MixedSounds_removeSoundNative(JNIEnv * env, jobject mixedSounds_object, jobject soundSource_object)
 	{
 		// Getting the MixedSounds native object
-		MixedSounds* mixedSounds_nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object);
+		MixedSounds* mixedSounds_nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, mixedSounds_object, "MixedSounds");
 
 		// Getting the SoundSource native object
-		SoundSource* soundSource_nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, soundSource_object);
+		SoundSource* soundSource_nativeInstance = getAndCheckNativeInstance<MixedSounds>(env, soundSource_object, "MixedSounds");
 
 		// Disconnecting
 		mixedSounds_nativeInstance->removeSound(*soundSource_nativeInstance);

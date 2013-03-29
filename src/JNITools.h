@@ -66,10 +66,10 @@ void catchSoundSourceErrors(JNIEnv * env, const SoundSource::Error& error);
  * }
  *
  */
-template<class T> jobject errorTypeForClass(JNIEnv * env, typename T::ErrorType errorType)
+template<class T> jobject errorTypeForClass(JNIEnv * env, typename T::ErrorType errorType, string Tname)
 {
-	jclass vorbisFileReaderError_class = env->FindClass("vam/" TO_STRING(T) "$ErrorType");
-	jmethodID fromValue_method = env->GetStaticMethodID(vorbisFileReaderError_class, "fromValue", "(I)Lvam/" TO_STRING(T) "$ErrorType;");
+	jclass vorbisFileReaderError_class = env->FindClass((string("vam/") + Tname + "$ErrorType").c_str());
+	jmethodID fromValue_method = env->GetStaticMethodID(vorbisFileReaderError_class, "fromValue", (string("(I)Lvam/") + Tname + "$ErrorType;").c_str());
 
 	int value = (int)errorType;
 
@@ -124,13 +124,13 @@ template<class T> jobject errorTypeForClass(JNIEnv * env, typename T::ErrorType 
  *
  */
 
-template<class T> void throwErrorForClass(JNIEnv * env, const typename T::Error& error)
+template<class T> void throwErrorForClass(JNIEnv * env, const typename T::Error& error, string Tname)
 {
-	jclass error_class = env->FindClass("vam/" TO_STRING(T) "$Error");
+	jclass error_class = env->FindClass((string("vam/") + Tname + "$Error").c_str());
 	jmethodID error_constructor = env->GetMethodID(
-			error_class, "<init>", "(Lvam/" TO_STRING(T) "$ErrorType;ILjava/lang/String;)V");
+			error_class, "<init>", (string("(Lvam/") + Tname + "$ErrorType;Ljava/lang/String;)V").c_str());
 
-	jobject errorType_object = errorTypeForClass<T>(env, error.getType());
+	jobject errorType_object = errorTypeForClass<T>(env, error.getType(), Tname);
 
 #if __SIZEOF_WCHAR_T__ == 2
 	// (It's likely mingw32) Here we have equality between wchar_t and jchar
@@ -151,20 +151,16 @@ template<class T> void throwErrorForClass(JNIEnv * env, const typename T::Error&
 	env->Throw(error_exception);
 }
 
-template<class T> void throwResourcesDeallocatedErrorForClass(JNIEnv * env)
-{
-	jclass resourcesDeallocatedException_class = env->FindClass("vam/ResourcesDeallocatedException");
-	env->ThrowNew(resourcesDeallocatedException_class, "Resources of the " TO_STRING(T) " object are deallocated");
-}
+void throwResourcesDeallocatedErrorForClass(JNIEnv * env, string Tname);
 
-template<class T> T* getAndCheckNativeInstance(JNIEnv * env, jobject object)
+template<class T> T* getAndCheckNativeInstance(JNIEnv * env, jobject object, string Tname)
 {
 	jclass theclass = env->GetObjectClass(object);
 	jfieldID nativeInstance_field = env->GetFieldID(theclass, "nativeInstance", "J");
 	T* nativeInstance = (T*)env->GetLongField(object, nativeInstance_field);
 	if (nativeInstance == NULL)
 	{
-		throwResourcesDeallocatedErrorForClass<T>(env);
+		throwResourcesDeallocatedErrorForClass(env, Tname);
 		return NULL;
 	}
 	else
