@@ -1,5 +1,8 @@
 package app;
 
+import java.util.ArrayList;
+
+import app.Note.Tone;
 import vam.MixedSounds;
 import vam.MovedSound;
 import vam.SoundSource;
@@ -30,43 +33,57 @@ public class Application
 		return (time < 0 ? "-" : " ") + twoDig(min) + ":" + twoDig(sec) + "." + twoDig(sp10);
 	}
 	
+	private static final int INPUT_BUFFER = 256;
+	
 	public static void main(String[] args)
 	{
+		System.load("C:\\Users\\imizus\\Projects\\VariMusic\\patry\\bin\\avian-embed.exe");
+		
+		Meter m = new Meter(9, 4, 120);
+		
 		try
 		{
-			MixedSounds mis = new MixedSounds();
-			VorbisFileReader vfr_drums = new VorbisFileReader("../Drums.ogg", 256);
-			VorbisFileReader vfr_bass = new VorbisFileReader("../Bass.ogg", 256);
+			NoteSoundPool noteSoundPool = new NoteSoundPool();
+			noteSoundPool.addSoundForNote(new Note(Tone.A, 3), new VorbisFileReader("H:\\New\\arp1\\A3.ogg", INPUT_BUFFER));
+			noteSoundPool.addSoundForNote(new Note(Tone.A, 4), new VorbisFileReader("H:\\New\\arp1\\A4.ogg", INPUT_BUFFER));
+			noteSoundPool.addSoundForNote(new Note(Tone.B, 4), new VorbisFileReader("H:\\New\\arp1\\B4.ogg", INPUT_BUFFER));
+			noteSoundPool.addSoundForNote(new Note(Tone.E, 4), new VorbisFileReader("H:\\New\\arp1\\E4.ogg", INPUT_BUFFER));
+			noteSoundPool.addSoundForNote(new Note(Tone.G, 4), new VorbisFileReader("H:\\New\\arp1\\G4.ogg", INPUT_BUFFER));
+			noteSoundPool.addSoundForNote(new Note(Tone.C, 5), new VorbisFileReader("H:\\New\\arp1\\C5.ogg", INPUT_BUFFER));
 			
-			MovedSound mos_drums = new MovedSound();
-			MovedSound mos_bass = new MovedSound();
+			RandomNotesShuffler randomNotesShuffler = new RandomNotesShuffler();
+			randomNotesShuffler.setNoteSoundPool(noteSoundPool);
+			
+			randomNotesShuffler.addNotes(new Note[] 
+			{  
+					new Note(Tone.A, 3),
+					new Note(Tone.A, 4),
+					new Note(Tone.B, 4),
+					new Note(Tone.E, 4),
+					new Note(Tone.G, 4),
+					new Note(Tone.C, 5)
+			});
+			
+			randomNotesShuffler.setBeatsBetweenNotes(1);
+			randomNotesShuffler.setMeter(m);
+			
+			SoundSource resultSource = randomNotesShuffler.mix(16);
+			
+			resultSource.rewind(-1);
+			
+			PortAudioPlayer pap = new PortAudioPlayer(resultSource.getChannels(), resultSource.getRate(), 1024);
 
-			mos_drums.setSound(vfr_drums);
-			mos_bass.setSound(vfr_bass);
-
-			mos_drums.setDelay(16);
-			mos_bass.setDelay(16);
-			
-			mis.addSound(vfr_drums);
-			//mis.addSound(vfr_bass);
-			mis.addSound(mos_drums);
-			mis.addSound(mos_bass);
-			
-			mis.rewind(-1);
-			
-			PortAudioPlayer pap = new PortAudioPlayer(mis.getChannels(), mis.getRate(), 1024);
-
-			pap.setSoundSource(mis);
+			pap.setSoundSource(resultSource);
 			
 			pap.play();
 			
-			while (mis.getPlayhead() < mis.getEndTime())
+			while (resultSource.getPlayhead() < resultSource.getEndTime())
 			{
 				try
 				{
 					Thread.sleep(10);
 					
-					System.out.print("\rPlaying the file... [ " + timeToString(mis.getStartTime()) + " / " + timeToString(mis.getPlayhead()) + " / " + timeToString(mis.getEndTime()) + "  ]");
+					System.out.print("\rPlaying the file... [ " + timeToString(resultSource.getStartTime()) + " / " + timeToString(resultSource.getPlayhead()) + " / " + timeToString(resultSource.getEndTime()) + "  ]");
 					
 				} 
 				catch (InterruptedException e)
@@ -76,7 +93,6 @@ public class Application
 			}
 			
 			pap.close();
-			mis.close();
 			System.gc();
 			
 			System.out.println("\nBye.");
