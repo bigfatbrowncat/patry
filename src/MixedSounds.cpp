@@ -73,7 +73,33 @@ namespace vam
 
 	void MixedSounds::updatePlayhead()
 	{
-		playhead = buffer_start_time + (double)cursor_position_in_buffer / getRate();
+		playhead = buffer_start_time + (double)cursor_position_in_buffer / rate;
+	}
+
+	void MixedSounds::updateChannelsAndRate()
+	{
+		// Updating channels
+
+		int channels_max = 0;
+		for (list<SoundSource*>::const_iterator iter = sounds.begin(); iter != sounds.end(); iter++)
+		{
+			if ((*iter)->getChannels() > channels_max)
+			{
+				channels_max = (*iter)->getChannels();
+			}
+		}
+		channels = channels_max;
+
+		// Updating rate
+
+		if (sounds.size() == 0)
+		{
+			rate = 44100;	// By default
+		}
+		else
+		{
+			rate = sounds.front()->getRate();
+		}
 	}
 
 	MixedSounds::MixedSounds(int buffer_size) :
@@ -107,8 +133,6 @@ namespace vam
 			fillBuffer();
 		}
 
-		int channels = getChannels();
-
 		if (buffer_actual_size > 0)
 		{
 
@@ -135,15 +159,7 @@ namespace vam
 
 	int MixedSounds::getChannels() const
 	{
-		int channels_max = 0;
-		for (list<SoundSource*>::const_iterator iter = sounds.begin(); iter != sounds.end(); iter++)
-		{
-			if ((*iter)->getChannels() > channels_max)
-			{
-				channels_max = (*iter)->getChannels();
-			}
-		}
-		return channels_max;
+		return channels;
 	}
 
 	void MixedSounds::rewind(double position)
@@ -180,14 +196,7 @@ namespace vam
 
 	int MixedSounds::getRate() const
 	{
-		if (sounds.size() == 0)
-		{
-			return 44100;	// By default
-		}
-		else
-		{
-			return sounds.front()->getRate();
-		}
+		return rate;
 	}
 
 	void MixedSounds::addSound(SoundSource& sound)
@@ -197,17 +206,20 @@ namespace vam
 			throw Error(etUnsupportedChannelsNumber, L"addSound");
 		}
 
-		if (sounds.size() > 0 && sound.getRate() != sounds.front()->getRate())
+		if (sounds.size() > 0 && sound.getRate() != rate)
 		{
 			throw Error(etInequalRate, L"addSound");
 		}
 
 		sounds.push_back(&sound);
+
+		updateChannelsAndRate();
 	}
 
 	void MixedSounds::removeSound(SoundSource& sound)
 	{
 		sounds.remove(&sound);
+		updateChannelsAndRate();
 	}
 
 	MixedSounds::~MixedSounds()

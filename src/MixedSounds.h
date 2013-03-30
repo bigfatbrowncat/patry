@@ -54,10 +54,14 @@ namespace vam
 		list<SoundSource*> sounds;
 		double playhead;
 
+		int channels;
+		int rate;
+
 		void checkSoundPositions();
 
 		void fillBuffer();
 		void updatePlayhead();
+		void updateChannelsAndRate();
 
 	public:
 		MixedSounds(int buffer_size);
