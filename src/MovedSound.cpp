@@ -22,48 +22,48 @@ namespace vam
 
 	void MovedSound::fillBuffer()
 	{
-		second_buffer_start_time = playhead;
+		buffer_start_time = playhead;
 		if (sound != NULL)
 		{
 			checkSoundPosition();
 
-			for (int i = 0; i < second_buffer_allocated_size; i++)
+			for (int i = 0; i < buffer_allocated_size; i++)
 			{
 				const float* sample = sound->readSample();
 				for (int ch = 0; ch < sound->getChannels(); ch++)
 				{
-					second_buffer[ch][i] = sample[ch];
+					buffer[ch][i] = sample[ch];
 				}
 			}
-			second_buffer_actual_size = second_buffer_allocated_size;
+			buffer_actual_size = buffer_allocated_size;
 		}
 		else
 		{
-			second_buffer_actual_size = 0;
+			buffer_actual_size = 0;
 		}
 
-		cursor_position_in_second_buffer = 0;
+		cursor_position_in_buffer = 0;
 	}
 
 	void MovedSound::updatePlayhead()
 	{
-		playhead = second_buffer_start_time + (double)cursor_position_in_second_buffer / getRate();
+		playhead = buffer_start_time + (double)cursor_position_in_buffer / getRate();
 	}
 
 
 	// TODO Add second buffer size parameter
 	MovedSound::MovedSound(int buffer_size) :
 			sound(NULL), delay(0), playhead(0),
-			second_buffer(NULL),
-			cursor_position_in_second_buffer(buffer_size),
-			second_buffer_allocated_size(buffer_size),
-			second_buffer_start_time(0),
-			second_buffer_actual_size(0)
+			buffer(NULL),
+			cursor_position_in_buffer(buffer_size),
+			buffer_allocated_size(buffer_size),
+			buffer_start_time(0),
+			buffer_actual_size(0)
 	{
-		second_buffer = new float*[MAX_CHANNELS];
+		buffer = new float*[MAX_CHANNELS];
 		for (int i = 0; i < MAX_CHANNELS; i++)
 		{
-			second_buffer[i] = new float[second_buffer_allocated_size];
+			buffer[i] = new float[buffer_allocated_size];
 		}
 
 		fillBuffer();
@@ -73,7 +73,7 @@ namespace vam
 	{
 		bool playhead_was_negative = playhead < getStartTime();
 
-		cursor_position_in_second_buffer ++;
+		cursor_position_in_buffer ++;
 		updatePlayhead();
 
 		if (playhead >= getStartTime() && playhead_was_negative)
@@ -83,17 +83,17 @@ namespace vam
 
 		int channels = (sound != NULL ? sound->getChannels() : MAX_CHANNELS);
 
-		if (second_buffer_actual_size > 0)
+		if (buffer_actual_size > 0)
 		{
 
-			if (cursor_position_in_second_buffer >= second_buffer_allocated_size)
+			if (cursor_position_in_buffer >= buffer_allocated_size)
 			{
 				fillBuffer();
 			}
 
 			for (int i = 0; i < channels; i++)
 			{
-				read_buffer[i] = second_buffer[i][cursor_position_in_second_buffer];
+				read_buffer[i] = buffer[i][cursor_position_in_buffer];
 			}
 		}
 		else
@@ -155,9 +155,9 @@ namespace vam
 	{
 		for (int i = 0; i < MAX_CHANNELS; i++)
 		{
-			delete [] second_buffer[i];
+			delete [] buffer[i];
 		}
-		delete [] second_buffer;
+		delete [] buffer;
 	}
 
 } /* namespace vam */

@@ -11,12 +11,6 @@
 
 namespace vam
 {
-
-	MixedSounds::MixedSounds() : playhead(0)
-	{
-		samples = new float[MAX_CHANNELS];
-	}
-
 	void MixedSounds::checkSoundPositions()
 	{
 		for (list<SoundSource*>::iterator iter = sounds.begin(); iter != sounds.end(); iter++)
@@ -28,46 +22,115 @@ namespace vam
 		}
 	}
 
+	void MixedSounds::fillBuffer()
+	{
+		buffer_start_time = playhead;
+		if (sounds.size() > 0)
+		{
+			int channels = getChannels();
+
+			// Checking for playheads equality
+			checkSoundPositions();
+
+			for (int i = 0; i < buffer_allocated_size; i++)
+			{
+				for (int ch = 0; ch < channels; ch++)
+				{
+					buffer[ch][i] = 0;
+				}
+
+				for (list<SoundSource*>::iterator iter = sounds.begin(); iter != sounds.end(); iter++)
+				{
+					const float* iterSample = (*iter)->readSample();
+					switch ((*iter)->getChannels())
+					{
+					case 1:
+						for (int ch = 0; ch < channels; ch++)
+						{
+							buffer[ch][i] += iterSample[0];
+						}
+						break;
+					case 2:
+						for (int ch = 0; ch < channels; ch++)
+						{
+							buffer[ch][i] += iterSample[ch];
+						}
+						break;
+					default:
+						throw Error(etUnsupportedChannelsNumber, L"readSample");
+					}
+				}
+			}
+			buffer_actual_size = buffer_allocated_size;
+		}
+		else
+		{
+			buffer_actual_size = 0;
+		}
+
+		cursor_position_in_buffer = 0;
+	}
+
+	void MixedSounds::updatePlayhead()
+	{
+		playhead = buffer_start_time + (double)cursor_position_in_buffer / getRate();
+	}
+
+	MixedSounds::MixedSounds(int buffer_size) :
+			playhead(0),
+			buffer(NULL),
+			cursor_position_in_buffer(buffer_size),
+			buffer_allocated_size(buffer_size),
+			buffer_start_time(0),
+			buffer_actual_size(0)
+	{
+		buffer = new float*[MAX_CHANNELS];
+		for (int i = 0; i < MAX_CHANNELS; i++)
+		{
+			buffer[i] = new float[buffer_allocated_size];
+		}
+
+		fillBuffer();
+	}
+
+
+
 	const float* MixedSounds::readSample()
 	{
-		// TODO No buffering yet, but it should be added
+		bool playhead_was_negative = playhead < getStartTime();
+
+		cursor_position_in_buffer ++;
+		updatePlayhead();
+
+		if (playhead >= getStartTime() && playhead_was_negative)
+		{
+			fillBuffer();
+		}
 
 		int channels = getChannels();
 
-		for (int i = 0; i < channels; i++)
+		if (buffer_actual_size > 0)
 		{
-			samples[i] = 0;
-		}
 
-		// Checking for playheads equality
-		checkSoundPositions();
-
-		for (list<SoundSource*>::iterator iter = sounds.begin(); iter != sounds.end(); iter++)
-		{
-			const float* iterSample = (*iter)->readSample();
-			switch ((*iter)->getChannels())
+			if (cursor_position_in_buffer >= buffer_allocated_size)
 			{
-			case 1:
-				for (int i = 0; i < channels; i++)
-				{
-					samples[i] += iterSample[0];
-				}
-				break;
-			case 2:
-				for (int i = 0; i < channels; i++)
-				{
-					samples[i] += iterSample[i];
-				}
-				break;
-			default:
-				throw Error(etUnsupportedChannelsNumber, L"readSample");
+				fillBuffer();
 			}
 
+			for (int i = 0; i < channels; i++)
+			{
+				read_buffer[i] = buffer[i][cursor_position_in_buffer];
+			}
+		}
+		else
+		{
+			for (int i = 0; i < channels; i++)
+			{
+				read_buffer[i] = 0.f;
+			}
 		}
 
-		playhead += 1.0 / getRate();
-
-		return samples;
+		return read_buffer;
 	}
 
 	int MixedSounds::getChannels() const
@@ -86,10 +149,7 @@ namespace vam
 	void MixedSounds::rewind(double position)
 	{
 		playhead = position;
-		for (list<SoundSource*>::iterator iter = sounds.begin(); iter != sounds.end(); iter++)
-		{
-			(*iter)->rewind(position);
-		}
+		fillBuffer();
 	}
 
 	double MixedSounds::getStartTime() const
@@ -152,7 +212,11 @@ namespace vam
 
 	MixedSounds::~MixedSounds()
 	{
-		delete [] samples;
+		for (int i = 0; i < MAX_CHANNELS; i++)
+		{
+			delete [] buffer[i];
+		}
+		delete [] buffer;
 	}
 
 } /* namespace vam */

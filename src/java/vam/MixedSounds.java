@@ -43,16 +43,16 @@ public class MixedSounds extends SoundSource
 
 	private List<SoundSource> sounds;
 	
-	private native static long createNativeInstance();
+	private native static long createNativeInstance(int bufferSize);
 	
 	/**
 	 * Frees the native allocated object
 	 */
 	private native void destroyNativeInstance();
 	
-	public MixedSounds()
+	public MixedSounds(int bufferSize)
 	{
-		super(createNativeInstance());
+		super(createNativeInstance(bufferSize));
 		sounds = new ArrayList<SoundSource>();
 	}
 
@@ -73,7 +73,6 @@ public class MixedSounds extends SoundSource
 	{
 		try
 		{
-			System.out.println("ms fin");
 			close();
 		}
 		finally

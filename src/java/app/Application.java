@@ -33,11 +33,11 @@ public class Application
 		return (time < 0 ? "-" : " ") + twoDig(min) + ":" + twoDig(sec) + "." + twoDig(sp10);
 	}
 	
-	private static final int INPUT_BUFFER = 512;
+	private static final int INPUT_BUFFER = 4096;
 	
 	public static void main(String[] args)
 	{
-		System.load("/Users/il/Projects/ogg-vorbis/patry/bin/avian-embed");
+		//System.load("/Users/il/Projects/ogg-vorbis/patry/bin/avian-embed");
 		
 		Meter m = new Meter(9, 4, 120);
 		
@@ -67,7 +67,7 @@ public class Application
 			randomNotesShuffler.setBeatsBetweenNotes(0.5);
 			randomNotesShuffler.setMeter(m);
 			
-			SoundSource resultSource = randomNotesShuffler.mix(32);
+			SoundSource resultSource = randomNotesShuffler.mix(64);
 			
 			resultSource.rewind(-1);
 			
@@ -185,7 +185,7 @@ public class Application
 				return;
 			}
 
-			MixedSounds ms = new MixedSounds();
+			MixedSounds ms = new MixedSounds(INPUT_BUFFER);
 
 			for (int argIndex = 0; argIndex < args.length; argIndex++)
 			{

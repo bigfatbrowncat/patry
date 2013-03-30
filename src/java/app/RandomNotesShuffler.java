@@ -51,7 +51,7 @@ public class RandomNotesShuffler
 	{
 		Random rnd = new Random(randomSeed);
 		
-		MixedSounds res = new MixedSounds();
+		MixedSounds res = new MixedSounds(bufferSize);
 		
 		double time = 0;
 		Note prevNote = null;

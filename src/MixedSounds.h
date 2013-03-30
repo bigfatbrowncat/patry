@@ -43,13 +43,24 @@ namespace vam
 		};
 
 	private:
+		float** buffer;						// This buffer is ours. It's a second buffer for fast process
+		double buffer_start_time;
+		int cursor_position_in_buffer;
+		int buffer_allocated_size;
+		int buffer_actual_size;
+
+		float read_buffer[MAX_CHANNELS];
+
 		list<SoundSource*> sounds;
 		double playhead;
-		float* samples;
 
 		void checkSoundPositions();
+
+		void fillBuffer();
+		void updatePlayhead();
+
 	public:
-		MixedSounds();
+		MixedSounds(int buffer_size);
 		virtual ~MixedSounds();
 
 		virtual const float* readSample();

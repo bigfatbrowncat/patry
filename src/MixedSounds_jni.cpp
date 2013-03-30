@@ -19,12 +19,12 @@ using namespace vam;
 extern "C"
 {
 
-	JNIEXPORT jlong JNICALL Java_vam_MixedSounds_createNativeInstance(JNIEnv * env, jclass mixedSounds_class)
+	JNIEXPORT jlong JNICALL Java_vam_MixedSounds_createNativeInstance(JNIEnv * env, jclass mixedSounds_class, jint bufferSize)
 	{
 		MixedSounds* nativeInstance = NULL;
 		try
 		{
-			nativeInstance = new MixedSounds();
+			nativeInstance = new MixedSounds(bufferSize);
 		}
 		catch (const SoundSource::Error& err)
 		{
