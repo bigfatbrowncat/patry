@@ -33,25 +33,25 @@ public class Application
 		return (time < 0 ? "-" : " ") + twoDig(min) + ":" + twoDig(sec) + "." + twoDig(sp10);
 	}
 	
-	private static final int INPUT_BUFFER = 256;
+	private static final int INPUT_BUFFER = 512;
 	
 	public static void main(String[] args)
 	{
-		System.load("C:\\Users\\imizus\\Projects\\VariMusic\\patry\\bin\\avian-embed.exe");
+		System.load("/Users/il/Projects/ogg-vorbis/patry/bin/avian-embed");
 		
 		Meter m = new Meter(9, 4, 120);
 		
 		try
 		{
 			NoteSoundPool noteSoundPool = new NoteSoundPool();
-			noteSoundPool.addSoundForNote(new Note(Tone.A, 3), new VorbisFileReader("H:\\New\\arp1\\A3.ogg", INPUT_BUFFER));
-			noteSoundPool.addSoundForNote(new Note(Tone.A, 4), new VorbisFileReader("H:\\New\\arp1\\A4.ogg", INPUT_BUFFER));
-			noteSoundPool.addSoundForNote(new Note(Tone.B, 4), new VorbisFileReader("H:\\New\\arp1\\B4.ogg", INPUT_BUFFER));
-			noteSoundPool.addSoundForNote(new Note(Tone.E, 4), new VorbisFileReader("H:\\New\\arp1\\E4.ogg", INPUT_BUFFER));
-			noteSoundPool.addSoundForNote(new Note(Tone.G, 4), new VorbisFileReader("H:\\New\\arp1\\G4.ogg", INPUT_BUFFER));
-			noteSoundPool.addSoundForNote(new Note(Tone.C, 5), new VorbisFileReader("H:\\New\\arp1\\C5.ogg", INPUT_BUFFER));
+			noteSoundPool.addSoundForNote(new Note(Tone.A, 3), new VorbisFileReader("../New/arp1/A3.ogg", INPUT_BUFFER));
+			noteSoundPool.addSoundForNote(new Note(Tone.A, 4), new VorbisFileReader("../New/arp1/A4.ogg", INPUT_BUFFER));
+			noteSoundPool.addSoundForNote(new Note(Tone.B, 4), new VorbisFileReader("../New/arp1/B4.ogg", INPUT_BUFFER));
+			noteSoundPool.addSoundForNote(new Note(Tone.E, 4), new VorbisFileReader("../New/arp1/E4.ogg", INPUT_BUFFER));
+			noteSoundPool.addSoundForNote(new Note(Tone.G, 4), new VorbisFileReader("../New/arp1/G4.ogg", INPUT_BUFFER));
+			noteSoundPool.addSoundForNote(new Note(Tone.C, 5), new VorbisFileReader("../New/arp1/C5.ogg", INPUT_BUFFER));
 			
-			RandomNotesShuffler randomNotesShuffler = new RandomNotesShuffler();
+			RandomNotesShuffler randomNotesShuffler = new RandomNotesShuffler(INPUT_BUFFER);
 			randomNotesShuffler.setNoteSoundPool(noteSoundPool);
 			
 			randomNotesShuffler.addNotes(new Note[] 
@@ -64,10 +64,10 @@ public class Application
 					new Note(Tone.C, 5)
 			});
 			
-			randomNotesShuffler.setBeatsBetweenNotes(1);
+			randomNotesShuffler.setBeatsBetweenNotes(0.5);
 			randomNotesShuffler.setMeter(m);
 			
-			SoundSource resultSource = randomNotesShuffler.mix(16);
+			SoundSource resultSource = randomNotesShuffler.mix(32);
 			
 			resultSource.rewind(-1);
 			

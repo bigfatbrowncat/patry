@@ -18,9 +18,9 @@ using namespace vam;
 
 extern "C"
 {
-	JNIEXPORT jlong JNICALL Java_vam_MovedSound_createNativeInstance(JNIEnv * env, jclass movedSound_class)
+	JNIEXPORT jlong JNICALL Java_vam_MovedSound_createNativeInstance(JNIEnv * env, jclass movedSound_class, jint buffer_size)
 	{
-		MovedSound* nativeInstance = new MovedSound();
+		MovedSound* nativeInstance = new MovedSound(buffer_size);
 		return (jlong)nativeInstance;
 	}
 

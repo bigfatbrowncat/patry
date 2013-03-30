@@ -50,13 +50,13 @@ namespace vam
 			case 1:
 				for (int i = 0; i < channels; i++)
 				{
-					samples[i] += iterSample[0] / sounds.size();
+					samples[i] += iterSample[0];
 				}
 				break;
 			case 2:
 				for (int i = 0; i < channels; i++)
 				{
-					samples[i] += iterSample[i] / sounds.size();
+					samples[i] += iterSample[i];
 				}
 				break;
 			default:

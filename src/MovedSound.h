@@ -55,7 +55,7 @@ namespace vam
 		void updatePlayhead();
 
 	public:
-		MovedSound();
+		MovedSound(int buffer_size);
 		virtual ~MovedSound();
 
 		virtual const float* readSample();

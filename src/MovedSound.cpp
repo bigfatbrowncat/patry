@@ -52,11 +52,11 @@ namespace vam
 
 
 	// TODO Add second buffer size parameter
-	MovedSound::MovedSound() :
+	MovedSound::MovedSound(int buffer_size) :
 			sound(NULL), delay(0), playhead(0),
 			second_buffer(NULL),
-			cursor_position_in_second_buffer(256),
-			second_buffer_allocated_size(256),
+			cursor_position_in_second_buffer(buffer_size),
+			second_buffer_allocated_size(buffer_size),
 			second_buffer_start_time(0),
 			second_buffer_actual_size(0)
 	{

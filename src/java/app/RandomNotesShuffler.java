@@ -18,10 +18,12 @@ public class RandomNotesShuffler
 	private double beatsBetweenNotes;
 	private NoteSoundPool noteSoundPool;
 	private HashSet<Note> notes;
+	private int bufferSize;
 	
-	public RandomNotesShuffler()
+	public RandomNotesShuffler(int bufferSize)
 	{
-		randomSeed = (new Date()).getTime();
+		this.bufferSize = bufferSize;
+		randomSeed = 0;//(new Date()).getTime();
 		notes = new HashSet<Note>();
 	}
 	
@@ -31,7 +33,7 @@ public class RandomNotesShuffler
 	
 	public void addNotes(Note[] notes)
 	{
-		ArrayList<Note> notesList = new ArrayList<>();
+		ArrayList<Note> notesList = new ArrayList<Note>();
 		for (int i = 0; i < notes.length; i++)
 		{
 			notesList.add(notes[i]);
@@ -63,16 +65,18 @@ public class RandomNotesShuffler
 		
 		for (int i = 0; i < number; i++)
 		{
-			MovedSound ms = new MovedSound();
+			MovedSound ms = new MovedSound(bufferSize);
 			
 			// Generating the next note
 			Note nextNote = null;
-			while (nextNote == prevNote)
+			do
 			{
-				int nextIndex = rnd.nextInt() % notesArray.length;
+				int nextIndex = rnd.nextInt(notesArray.length);
 				System.out.print(nextIndex + " ");
 				nextNote = notesArray[nextIndex];
 			}
+			while (nextNote == prevNote);
+			System.out.print("!");
 			
 			ms.setSound(noteSoundPool.getSoundForNote(nextNote));
 			ms.setDelay(time);

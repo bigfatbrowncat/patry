@@ -5,6 +5,8 @@ BIN = bin
 OBJ = obj
 GEN = gen
 
+DEBUG_OPTIMIZE = -O3 # -O0 -g
+
 ifeq ($(UNAME), Darwin)	# OS X
   PLATFORM = darwin
   ARCH = x86_64
@@ -68,7 +70,7 @@ NATIVE_OBJECTS = $(OBJ)/VorbisFileReader.o \
 
 $(OBJ)/%.o: $(SRC)/%.cpp $(SRC)/*.h
 	mkdir -p $(OBJ)
-	g++ -g -O0 -c -Iinclude -I$(GEN)/jni/ $< -o $@
+	g++ $(DEBUG_OPTIMIZE) -c -Iinclude -I$(GEN)/jni/ $< -o $@
 
 $(BIN)/avian-embed: $(SRC)/avian-embed.cpp $(JAVA_CLASSES) $(JNI_HEADERS) $(JNI_OBJECTS) $(NATIVE_OBJECTS)
 	mkdir -p $(BIN);
@@ -90,7 +92,7 @@ $(BIN)/avian-embed: $(SRC)/avian-embed.cpp $(JAVA_CLASSES) $(JNI_HEADERS) $(JNI_
 	
 	# Making an object file from the java class library
 	tools/$(PLATFORM_LIBS)/binaryToObject $(BIN)/boot.jar $(OBJ)/boot.jar.o _binary_boot_jar_start _binary_boot_jar_end $(PLATFORM) $(ARCH); \
-	g++ -g -O0 -D_JNI_IMPLEMENTATION_ -Llib/$(PLATFORM_LIBS) -Iinclude -I$(GEN)/jni/ $(OBJ)/boot.jar.o $(OBJ)/libavian/*.o $(JNI_OBJECTS) $(NATIVE_OBJECTS) $< -lvorbisfile -lvorbis -logg -lportaudio $(PLATFORM_MULTIMEDIA_LINKER_OPTIONS) $(PLATFORM_GENERAL_LINKER_OPTIONS) $(PLATFORM_CONSOLE_OPTION) -lm -lz -o $@
+	g++ $(DEBUG_OPTIMIZE) -D_JNI_IMPLEMENTATION_ -Llib/$(PLATFORM_LIBS) -Iinclude -I$(GEN)/jni/ $(OBJ)/boot.jar.o $(OBJ)/libavian/*.o $(JNI_OBJECTS) $(NATIVE_OBJECTS) $< -lvorbisfile -lvorbis -logg -lportaudio $(PLATFORM_MULTIMEDIA_LINKER_OPTIONS) $(PLATFORM_GENERAL_LINKER_OPTIONS) $(PLATFORM_CONSOLE_OPTION) -lm -lz -o $@
 	strip $(STRIP_OPTIONS) $@$(EXE_EXT)
 
 $(BIN)/win32ui: $(SRC)/win32ui.c

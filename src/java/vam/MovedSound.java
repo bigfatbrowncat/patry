@@ -39,16 +39,16 @@ public class MovedSound extends SoundSource
 	
 	private SoundSource sound;
 	
-	private native static long createNativeInstance();
+	private native static long createNativeInstance(int buffer_size);
 	
 	/**
 	 * Frees the native allocated object
 	 */
 	private native void destroyNativeInstance();
 	
-	public MovedSound()
+	public MovedSound(int bufferSize)
 	{
-		super(createNativeInstance());
+		super(createNativeInstance(bufferSize));
 	}
 
 	/**
