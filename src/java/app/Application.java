@@ -1,13 +1,13 @@
 package app;
 
-import java.util.ArrayList;
-
-import app.Note.Tone;
 import vam.MixedSounds;
-import vam.MovedSound;
-import vam.SoundSource;
 import vam.PortAudioPlayer;
+import vam.SoundSource;
 import vam.VorbisFileReader;
+import app.mistery.PianoNoteSoundPool;
+import app.mistery.RandomPianoGenerator;
+import app.mistery.RandomPianoGeneratorA;
+import app.mistery.RandomPianoGeneratorAsh;
 
 public class Application
 {
@@ -33,41 +33,33 @@ public class Application
 		return (time < 0 ? "-" : " ") + twoDig(min) + ":" + twoDig(sec) + "." + twoDig(sp10);
 	}
 	
-	private static final int INPUT_BUFFER = 4096;
-	
+	private static final int INPUT_BUFFER = 1024;
+		
 	public static void main(String[] args)
 	{
 		//System.load("/Users/il/Projects/ogg-vorbis/patry/bin/avian-embed");
 		
-		Meter m = new Meter(9, 4, 120);
 		
 		try
 		{
-			NoteSoundPool noteSoundPool = new NoteSoundPool();
-			noteSoundPool.addSoundForNote(new Note(Tone.A, 3), new VorbisFileReader("../New/arp1/A3.ogg", INPUT_BUFFER));
-			noteSoundPool.addSoundForNote(new Note(Tone.A, 4), new VorbisFileReader("../New/arp1/A4.ogg", INPUT_BUFFER));
-			noteSoundPool.addSoundForNote(new Note(Tone.B, 4), new VorbisFileReader("../New/arp1/B4.ogg", INPUT_BUFFER));
-			noteSoundPool.addSoundForNote(new Note(Tone.E, 4), new VorbisFileReader("../New/arp1/E4.ogg", INPUT_BUFFER));
-			noteSoundPool.addSoundForNote(new Note(Tone.G, 4), new VorbisFileReader("../New/arp1/G4.ogg", INPUT_BUFFER));
-			noteSoundPool.addSoundForNote(new Note(Tone.C, 5), new VorbisFileReader("../New/arp1/C5.ogg", INPUT_BUFFER));
+			PianoNoteSoundPool pianoNoteSoundPool = new PianoNoteSoundPool(INPUT_BUFFER);
 			
-			RandomNotesShuffler randomNotesShuffler = new RandomNotesShuffler(INPUT_BUFFER);
-			randomNotesShuffler.setNoteSoundPool(noteSoundPool);
-			
-			randomNotesShuffler.addNotes(new Note[] 
-			{  
-					new Note(Tone.A, 3),
-					new Note(Tone.A, 4),
-					new Note(Tone.B, 4),
-					new Note(Tone.E, 4),
-					new Note(Tone.G, 4),
-					new Note(Tone.C, 5)
-			});
-			
-			randomNotesShuffler.setBeatsBetweenNotes(0.5);
-			randomNotesShuffler.setMeter(m);
-			
-			SoundSource resultSource = randomNotesShuffler.mix(64);
+			Meter meter = new Meter(9, 4, 90);
+			RandomPianoGenerator rpgA = new RandomPianoGeneratorA(pianoNoteSoundPool, meter, 2, INPUT_BUFFER);
+			RandomPianoGenerator rpgAsh = new RandomPianoGeneratorAsh(pianoNoteSoundPool, meter, 2, INPUT_BUFFER);
+
+			SoundSource theme_ss = new VorbisFileReader("../New/Theme.ogg", INPUT_BUFFER);
+			SoundSource rpgA_1_ss = rpgA.mix(9, 1);
+			SoundSource rpgA_2_ss = rpgA.mix(18, 1);
+			SoundSource rpgAsh_3_ss = rpgAsh.mix(27, 1);
+			SoundSource rpgA_4_ss = rpgA.mix(36, 1);
+
+			MixedSounds resultSource = new MixedSounds(INPUT_BUFFER);
+			resultSource.addSound(theme_ss);
+			resultSource.addSound(rpgA_1_ss);
+			resultSource.addSound(rpgA_2_ss);
+			resultSource.addSound(rpgAsh_3_ss);
+			resultSource.addSound(rpgA_4_ss);
 			
 			resultSource.rewind(-1);
 			

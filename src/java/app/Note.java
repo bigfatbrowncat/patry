@@ -1,8 +1,8 @@
 package app;
 
-public class Note
+public class Note implements Comparable<Note>
 {
-	public enum Tone
+	public enum Key
 	{
 		C   (0,  "C"),
 		Csh (1,  "C#"),
@@ -20,7 +20,7 @@ public class Note
 		int index;
 		String name;
 		
-		Tone(int value, String name)
+		Key(int value, String name)
 		{
 			this.index = value;
 			this.name = name;
@@ -32,7 +32,7 @@ public class Note
 			return name;
 		}
 		
-		public static Tone fromIndex(int index)
+		public static Key fromIndex(int index)
 		{
 			switch (index)
 			{
@@ -59,16 +59,16 @@ public class Note
 			return index;
 		};*/
 	}
-	public Tone tone;
+	public Key key;
 	public int octave;
 	
-	public Note(Tone tone, int octave)
+	public Note(Key tone, int octave)
 	{
-		this.tone = tone;
+		this.key = tone;
 		this.octave = octave;
 	}
 	
-	Tone getTone() { return tone; }
+	Key getTone() { return key; }
 	int getOctave() { return octave; }
 	
 	@Override
@@ -77,7 +77,7 @@ public class Note
 		if (other instanceof Note)
 		{
 			Note otherNote = (Note)other;
-			if (otherNote.octave == octave && otherNote.tone == tone)
+			if (otherNote.octave == octave && otherNote.key == key)
 			{
 				return true;
 			}
@@ -88,12 +88,18 @@ public class Note
 	@Override
 	public String toString()
 	{
-		return tone.toString() + octave;
+		return key.toString() + octave;
 	}
 	
 	@Override
 	public int hashCode()
 	{
-		return tone.getIndex() + octave * 12;
+		return key.getIndex() + octave * 12;
+	}
+
+	@Override
+	public int compareTo(Note o)
+	{
+		return (octave * 12 + key.getIndex()) - (o.octave * 12 + key.getIndex());
 	}
 }

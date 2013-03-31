@@ -12,6 +12,23 @@ public class Meter
 		this.tempo_bpm = tempo_bpm;
 	}
 	
+	public double timeSpanToBeats(double timeSpan_sec)
+	{
+		double beat_length_sec = (1.0 / Meter.this.tempo_bpm) * 60.0;
+		return timeSpan_sec / beat_length_sec;
+	}
+	
+	public double beatsToTimeSpan(double beats)
+	{
+		double beat_length_sec = (1.0 / Meter.this.tempo_bpm) * 60.0;
+		return beats * beat_length_sec;
+	}
+	
+	public int getNumerator()
+	{
+		return numerator;
+	}
+	
 	public class Position
 	{
 		/**

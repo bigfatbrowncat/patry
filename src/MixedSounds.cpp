@@ -123,12 +123,14 @@ namespace vam
 
 	const float* MixedSounds::readSample()
 	{
-		bool playhead_was_negative = playhead < getStartTime();
+		double startTime = getStartTime();
+
+		bool playhead_was_negative = playhead < startTime;
 
 		cursor_position_in_buffer ++;
 		updatePlayhead();
 
-		if (playhead >= getStartTime() && playhead_was_negative)
+		if (playhead >= startTime && playhead_was_negative)
 		{
 			fillBuffer();
 		}

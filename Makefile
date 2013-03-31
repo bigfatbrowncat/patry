@@ -5,7 +5,7 @@ BIN = bin
 OBJ = obj
 GEN = gen
 
-DEBUG_OPTIMIZE = -O3 # -O0 -g
+DEBUG_OPTIMIZE = -O3#-O0 -g
 
 ifeq ($(UNAME), Darwin)	# OS X
   PLATFORM = darwin
@@ -42,6 +42,14 @@ $(GEN)/jni/%.h: $(BIN)/java/%.class
 
 
 JAVA_CLASSES = $(BIN)/java/app/Application.class \
+               $(BIN)/java/app/Meter.class \
+               $(BIN)/java/app/Note.class \
+               $(BIN)/java/app/NoteSoundPool.class \
+               $(BIN)/java/app/mistery/RandomNotesShuffler.class \
+               $(BIN)/java/app/mistery/PianoNoteSoundPool.class \
+               $(BIN)/java/app/mistery/RandomPianoGenerator.class \
+               $(BIN)/java/app/mistery/RandomPianoGeneratorA.class \
+               $(BIN)/java/app/mistery/RandomPianoGeneratorAsh.class \
                $(BIN)/java/vam/VorbisFileReader.class \
                $(BIN)/java/vam/PortAudioPlayer.class \
                $(BIN)/java/vam/ResourcesDeallocatedException.class \
@@ -93,7 +101,7 @@ $(BIN)/avian-embed: $(SRC)/avian-embed.cpp $(JAVA_CLASSES) $(JNI_HEADERS) $(JNI_
 	# Making an object file from the java class library
 	tools/$(PLATFORM_LIBS)/binaryToObject $(BIN)/boot.jar $(OBJ)/boot.jar.o _binary_boot_jar_start _binary_boot_jar_end $(PLATFORM) $(ARCH); \
 	g++ $(DEBUG_OPTIMIZE) -D_JNI_IMPLEMENTATION_ -Llib/$(PLATFORM_LIBS) -Iinclude -I$(GEN)/jni/ $(OBJ)/boot.jar.o $(OBJ)/libavian/*.o $(JNI_OBJECTS) $(NATIVE_OBJECTS) $< -lvorbisfile -lvorbis -logg -lportaudio $(PLATFORM_MULTIMEDIA_LINKER_OPTIONS) $(PLATFORM_GENERAL_LINKER_OPTIONS) $(PLATFORM_CONSOLE_OPTION) -lm -lz -o $@
-	strip $(STRIP_OPTIONS) $@$(EXE_EXT)
+	#strip $(STRIP_OPTIONS) $@$(EXE_EXT)
 
 $(BIN)/win32ui: $(SRC)/win32ui.c
 	mkdir -p $(BIN)
