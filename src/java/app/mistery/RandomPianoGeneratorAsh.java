@@ -12,17 +12,33 @@ public class RandomPianoGeneratorAsh extends RandomPianoGenerator
 	public RandomPianoGeneratorAsh(NoteSoundPool noteSoundPool,
 			Meter meter, int notesPerBeat, int bufferSize) throws Error
 	{
-		super(noteSoundPool, new Note[] 
+		super(noteSoundPool,
+		new Note[][] 
 		{  
-			new Note(Key.F, 3),
-			new Note(Key.Ash, 3),
-			new Note(Key.Ash, 4),
-			new Note(Key.Csh, 4),
-			new Note(Key.F, 4),
-			new Note(Key.G, 4),
-			//new Note(Key.Gsh, 4),
+			// Level 0
+			new Note[]
+			{
+				new Note(Key.Ash, 3),
+				new Note(Key.Ash, 4),
+			},
+			// Level 1
+			new Note[]
+			{
+					new Note(Key.F, 3),
+					new Note(Key.F, 4),
+			},
+			// Level 2
+			new Note[]
+			{
+					new Note(Key.Csh, 4),
+			},
+			// Level 3
+			new Note[]
+			{
+					new Note(Key.G, 4),
+					new Note(Key.Gsh, 4),
+			}
 		}, meter, notesPerBeat, bufferSize);
-		
 	}
 
 }

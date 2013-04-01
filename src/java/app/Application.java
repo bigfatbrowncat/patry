@@ -49,10 +49,14 @@ public class Application
 			RandomPianoGenerator rpgAsh = new RandomPianoGeneratorAsh(pianoNoteSoundPool, meter, 2, INPUT_BUFFER);
 
 			SoundSource theme_ss = new VorbisFileReader("../New/Theme.ogg", INPUT_BUFFER);
-			SoundSource rpgA_1_ss = rpgA.mix(9, 1);
-			SoundSource rpgA_2_ss = rpgA.mix(18, 1);
-			SoundSource rpgAsh_3_ss = rpgAsh.mix(27, 1);
-			SoundSource rpgA_4_ss = rpgA.mix(36, 1);
+			
+			// Scheme for intro piano arpeggio
+			int[] scheme = new int[] { 1, 2, 3, 4, 2, 4, 4, 3, 1, 3, 4, 3, 4, 2, 1, 4, 3, 2 };
+			
+			SoundSource rpgA_1_ss = rpgA.mix(9, scheme);
+			SoundSource rpgA_2_ss = rpgA.mix(18, scheme);
+			SoundSource rpgAsh_3_ss = rpgAsh.mix(27, scheme);
+			SoundSource rpgA_4_ss = rpgA.mix(36, scheme);
 
 			MixedSounds resultSource = new MixedSounds(INPUT_BUFFER);
 			resultSource.addSound(theme_ss);

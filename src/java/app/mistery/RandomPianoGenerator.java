@@ -12,28 +12,32 @@ public class RandomPianoGenerator
 	private int bufferSize;
 	private Meter meter;
 	private int notesPerBeat;
-	private RandomNotesShuffler randomNotesShufflerA;
+	private RandomNotesShuffler randomNotesShuffler;
 	
-	public RandomPianoGenerator(NoteSoundPool noteSoundPool, Note[] notes, Meter meter, int notesPerBeat, int bufferSize) throws SoundSource.Error
+	public RandomPianoGenerator(NoteSoundPool noteSoundPool, Note[][] notesWithLevels, Meter meter, int notesPerBeat, int bufferSize) throws SoundSource.Error
 	{
 		this.bufferSize = bufferSize;
 		this.meter = meter;
 		this.notesPerBeat = notesPerBeat;
 		
-		randomNotesShufflerA = new RandomNotesShuffler(bufferSize);
-		randomNotesShufflerA.setNoteSoundPool(noteSoundPool);
+		randomNotesShuffler = new RandomNotesShuffler(bufferSize);
+		randomNotesShuffler.setNoteSoundPool(noteSoundPool);
+
+		for (int i = 0; i < 4; i++)
+		{
+			randomNotesShuffler.addNotes(i, notesWithLevels[i]);
+		}
 		
-		randomNotesShufflerA.addNotes(notes);
-		
-		randomNotesShufflerA.setBeatsBetweenNotes(1.0 / notesPerBeat);
-		randomNotesShufflerA.setMeter(meter);
+		randomNotesShuffler.setBeatsBetweenNotes(1.0 / notesPerBeat);
+		randomNotesShuffler.setMeter(meter);
 	}
 	
-	public SoundSource mix(double beats_delay, double bars) throws SoundSource.Error
+	public SoundSource mix(double beats_delay, int[] scheme) throws SoundSource.Error
 	{
 		MovedSound ms = new MovedSound(bufferSize);
 		ms.setDelay(meter.beatsToTimeSpan(beats_delay));
-		ms.setSound(randomNotesShufflerA.mix((int)(bars * meter.getNumerator() * notesPerBeat)));
+		
+		ms.setSound(randomNotesShuffler.mix(scheme));
 		return ms;
 	}
 }
